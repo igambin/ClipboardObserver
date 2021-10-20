@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using WK.Libraries.SharpClipboardNS;
 
-namespace ClipboardListener.App
+namespace ClipboardObserver
 {
     public partial class Form1 : Form
     {
@@ -28,14 +21,12 @@ namespace ClipboardListener.App
         public Form1(SharpClipboard clipBoard, IServiceProvider services)
         {
             ClipBoard = clipBoard;
-            ClipBoard.ObserveLastEntry = false;
-
             Services = services;
 
             InitForm();
             
             ClipBoard.ClipboardChanged += ClipBoard_ClipboardChanged;
-            Services.GetServices<IClipboardChangedSubscriber>().ToList().ForEach(x =>
+            Services.GetServices<IClipboardChangedHandler>().ToList().ForEach(x =>
             {
                 x.ClipboardEntryProcessed += ClipboardEntryProcessed;
                 textBox1.AppendText(x.Name + " subscribed to new clipboard items!"+Environment.NewLine);
@@ -45,7 +36,10 @@ namespace ClipboardListener.App
 
         public void InitForm()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            ClipBoard.ObserveLastEntry = false;
+            ClipboardObserverNotifier.Visible = true;
+
         }
 
         private void ClipboardEntryProcessed(object source, ClipboardEntryProcessedEventArgs args)
@@ -76,6 +70,17 @@ namespace ClipboardListener.App
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             ClipBoard.StopMonitoring();
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
+
+        private void ClipboardObserverNotifier_MouseDoubleClick(object sender, EventArgs e)
+        {
+            this.Show();
+
         }
     }
 }

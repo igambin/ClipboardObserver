@@ -1,14 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using ClipboardListener.App.Subscribers;
+using ClipboardObserver.PluginManagement;
 using LightInject.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using WK.Libraries.SharpClipboardNS;
 
-namespace ClipboardListener.App
+namespace ClipboardObserver
 {
     static class Program
     {
@@ -22,7 +23,6 @@ namespace ClipboardListener.App
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-
             var services = CreateServiceProvider();
             var form = services.GetRequiredService<Form1>();
             Application.Run(form);
@@ -32,8 +32,10 @@ namespace ClipboardListener.App
         {
             var services = new ServiceCollection();
             services.AddSingleton<Form1>()
-                .AddSingleton<SharpClipboard>()
-                .AddTransient<IClipboardChangedSubscriber, AwsCredentialSubscriber>();
+                .AddSingleton<SharpClipboard>();
+
+            var pm = new PluginManager();
+            pm.RegisterPlugins(services);
 
             return services.CreateLightInjectServiceProvider();
         }

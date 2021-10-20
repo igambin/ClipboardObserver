@@ -1,8 +1,8 @@
 ﻿using WK.Libraries.SharpClipboardNS;
 
-namespace ClipboardListener.App
+namespace ClipboardObserver.PluginManagement
 {
-    public interface IClipboardChangedSubscriber
+    public interface IClipboardChangedHandler
     {
         event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 

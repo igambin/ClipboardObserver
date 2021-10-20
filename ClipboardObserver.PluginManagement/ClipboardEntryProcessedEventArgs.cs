@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClipboardListener.App
+namespace ClipboardObserver.PluginManagement
 {
     public class ClipboardEntryProcessedEventArgs : EventArgs
     {

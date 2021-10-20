@@ -1,24 +1,23 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.Pkcs;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Logging;
+using ClipboardObserver.PluginManagement;
 using WK.Libraries.SharpClipboardNS;
 
-namespace ClipboardListener.App.Subscribers
+namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public class AwsCredentialSubscriber : IClipboardChangedSubscriber
+    public class AwsCredentialsHandler : IClipboardChangedHandler
     {
         public event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 
         private SharpClipboard Clipboard { get; }
         
-        public string Name { get; } = nameof(AwsCredentialSubscriber);
+        public string Name { get; } = nameof(AwsCredentialsHandler);
 
         public SharpClipboard.ContentTypes ContentType { get; } = SharpClipboard.ContentTypes.Text;
 
-        public AwsCredentialSubscriber(SharpClipboard clipboard)
+        public AwsCredentialsHandler(SharpClipboard clipboard)
         {
             Clipboard = clipboard;
             Clipboard.ClipboardChanged += ClipboardChanged;

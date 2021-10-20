@@ -1,5 +1,5 @@
 ﻿
-namespace ClipboardListener.App
+namespace ClipboardObserver
 {
     partial class Form1
     {
@@ -29,6 +29,8 @@ namespace ClipboardListener.App
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -39,6 +41,7 @@ namespace ClipboardListener.App
             this.numFiles = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.numOthers = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ClipboardObserverNotifier = new System.Windows.Forms.NotifyIcon(this.components);
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -129,6 +132,14 @@ namespace ClipboardListener.App
             this.numOthers.Size = new System.Drawing.Size(13, 17);
             this.numOthers.Text = "0";
             // 
+            // ClipboardObserverNotifier
+            // 
+            this.ClipboardObserverNotifier.BalloonTipTitle = "Clipboard Observer";
+            this.ClipboardObserverNotifier.Icon = ((System.Drawing.Icon)(resources.GetObject("ClipboardObserverNotifier.Icon")));
+            this.ClipboardObserverNotifier.Text = "ClipboardObserver";
+            this.ClipboardObserverNotifier.Visible = true;
+            this.ClipboardObserverNotifier.DoubleClick += new System.EventHandler(this.ClipboardObserverNotifier_MouseDoubleClick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -136,11 +147,13 @@ namespace ClipboardListener.App
             this.ClientSize = new System.Drawing.Size(484, 111);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBox1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(500, 150);
             this.MinimumSize = new System.Drawing.Size(500, 150);
             this.Name = "Form1";
             this.Text = "ClipboardObserver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -160,6 +173,7 @@ namespace ClipboardListener.App
         private System.Windows.Forms.ToolStripStatusLabel numFiles;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel numOthers;
+        private System.Windows.Forms.NotifyIcon ClipboardObserverNotifier;
     }
 }
 
