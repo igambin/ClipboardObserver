@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
 using WK.Libraries.SharpClipboardNS;
+using FormWindowState = System.Windows.Forms.FormWindowState;
 
 namespace ClipboardObserver
 {
@@ -13,6 +14,8 @@ namespace ClipboardObserver
         static int CopiedTextItemsObserved { get; set; }
         static int CopiedFilesObserved { get; set; }
         static int CopiedImagesObserved { get; set; }
+
+        private bool _shutdown = false;
 
         private SharpClipboard ClipBoard { get; }
 
@@ -69,18 +72,27 @@ namespace ClipboardObserver
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            ClipBoard.StopMonitoring();
+            WindowState = FormWindowState.Minimized;
+            if(!_shutdown) e.Cancel = true;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            this.Hide();
+            if(WindowState == FormWindowState.Minimized) 
+                Hide();
         }
 
         private void ClipboardObserverNotifier_MouseDoubleClick(object sender, EventArgs e)
         {
-            this.Show();
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
 
+        private void closeObserverToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ClipBoard.StopMonitoring();
+            _shutdown = true;
+            Application.Exit();
         }
     }
 }

@@ -42,7 +42,10 @@ namespace ClipboardObserver
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
             this.numOthers = new System.Windows.Forms.ToolStripStatusLabel();
             this.ClipboardObserverNotifier = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.closeObserverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox1
@@ -135,10 +138,25 @@ namespace ClipboardObserver
             // ClipboardObserverNotifier
             // 
             this.ClipboardObserverNotifier.BalloonTipTitle = "Clipboard Observer";
+            this.ClipboardObserverNotifier.ContextMenuStrip = this.contextMenuStrip1;
             this.ClipboardObserverNotifier.Icon = ((System.Drawing.Icon)(resources.GetObject("ClipboardObserverNotifier.Icon")));
             this.ClipboardObserverNotifier.Text = "ClipboardObserver";
             this.ClipboardObserverNotifier.Visible = true;
             this.ClipboardObserverNotifier.DoubleClick += new System.EventHandler(this.ClipboardObserverNotifier_MouseDoubleClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.closeObserverToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(154, 26);
+            // 
+            // closeObserverToolStripMenuItem
+            // 
+            this.closeObserverToolStripMenuItem.Name = "closeObserverToolStripMenuItem";
+            this.closeObserverToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.closeObserverToolStripMenuItem.Text = "Close Observer";
+            this.closeObserverToolStripMenuItem.Click += new System.EventHandler(this.closeObserverToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -156,6 +174,7 @@ namespace ClipboardObserver
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -174,6 +193,8 @@ namespace ClipboardObserver
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel numOthers;
         private System.Windows.Forms.NotifyIcon ClipboardObserverNotifier;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem closeObserverToolStripMenuItem;
     }
 }
 
