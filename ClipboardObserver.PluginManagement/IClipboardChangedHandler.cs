@@ -1,4 +1,6 @@
-﻿using WK.Libraries.SharpClipboardNS;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using WK.Libraries.SharpClipboardNS;
 
 namespace ClipboardObserver.PluginManagement
 {
@@ -6,12 +8,12 @@ namespace ClipboardObserver.PluginManagement
     {
         event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 
-        string Name { get; }
-        
-        SharpClipboard.ContentTypes ContentType { get; }
+        List<SharpClipboard.ContentTypes> TriggeredBy { get; }
 
-        void ClipboardChanged(object sender, SharpClipboard.ClipboardChangedEventArgs e);
+        Task ClipboardChanged();
         
         void OnClipboardProcessed(string message);
+
+        bool IsActive { get; set; }
     }
 }

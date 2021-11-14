@@ -1,43 +1,73 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClipboardObserver.PluginManagement;
-using LightInject.Microsoft.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WK.Libraries.SharpClipboardNS;
 
 namespace ClipboardObserver
 {
     static class Program
     {
+        public static IConfiguration Configuration { get; private set; }
+
+        public static IServiceProvider ServiceProvider { get; private set; }
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
+            Startup(new ServiceCollection());
+            
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var services = CreateServiceProvider();
-            var form = services.GetRequiredService<Form1>();
+            var form = ServiceProvider.GetService<ClipboardObserverForm>();
             Application.Run(form);
         }
 
-        private static IServiceProvider CreateServiceProvider()
+        private static void Startup(IServiceCollection services)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton<Form1>()
-                .AddSingleton<SharpClipboard>();
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                ;
+
+            services.AddLogging(builder =>
+            {
+                builder.AddSimpleConsole(options =>
+                {
+                    options.IncludeScopes = true;
+                    options.SingleLine = true;
+                    options.TimestampFormat = "YY-MM-DD hh:mm:ss";
+                });
+            });
+
+            services.AddSingleton<ClipboardObserverForm>()
+                    .AddSingleton<ClipboardObserverOptions>()
+                    .AddSingleton<SharpClipboard>();
+
 
             var pm = new PluginManager();
-            pm.RegisterPlugins(services);
+            var optionSetters = pm.Startup(services, configBuilder);
+            
+            Configuration = configBuilder.Build();
 
-            return services.CreateLightInjectServiceProvider();
+            optionSetters.ForEach(o => o.Invoke(services, Configuration));
+
+            services.AddSingleton(Configuration);
+
+            ServiceProvider = services.BuildServiceProvider();
+
+
         }
+
+
+
     }
 }
