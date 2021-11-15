@@ -1,15 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipboardObserver", "ClipboardObserver\ClipboardObserver.csproj", "{C3997CA2-944B-49D0-AA47-081C0FFD5313}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipboardObserver.Plugins.TestHandler", "ClipboardObserver.Plugins.TestHandler\ClipboardObserver.Plugins.TestHandler.csproj", "{89DF3D78-71A0-4E4F-9750-622FFB7595BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipboardObserver.PluginManagement", "ClipboardObserver.PluginManagement\ClipboardObserver.PluginManagement.csproj", "{709D9664-4212-4396-9560-C8553FDE6AC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipboardObserver.PluginManagement", "ClipboardObserver.PluginManagement\ClipboardObserver.PluginManagement.csproj", "{709D9664-4212-4396-9560-C8553FDE6AC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClipboardObserver.Plugins.AwsCredentialsHandler", "ClipboardObserver.Plugins.AwsCredentialsHandler\ClipboardObserver.Plugins.AwsCredentialsHandler.csproj", "{7D48A1BF-9EC0-4B74-8C64-0B517E344DE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClipboardObserver.Plugins.AwsCredentialsHandler", "ClipboardObserver.Plugins.AwsCredentialsHandler\ClipboardObserver.Plugins.AwsCredentialsHandler.csproj", "{7D48A1BF-9EC0-4B74-8C64-0B517E344DE7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_General", "_General", "{706109C9-1CB2-44B7-859A-D4AF53302017}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

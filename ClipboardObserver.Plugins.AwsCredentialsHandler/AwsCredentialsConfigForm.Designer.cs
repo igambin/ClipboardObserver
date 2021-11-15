@@ -162,7 +162,9 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.Controls.Add(this.cbToFile);
             this.Controls.Add(this.cbToEnv);
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(290, 335);
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(290, 335);
             this.Name = "AwsCredentialsConfigForm";
             this.Text = "AWS Credentials Options";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AwsCredentialsConfigForm_FormClosing);

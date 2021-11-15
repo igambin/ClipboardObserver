@@ -12,6 +12,8 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             IConfiguration configuration,
             IOptionsMonitor<AwsCredentialsConfigOptions> options) : base(configuration, options)
         {
+            InitializeComponent();
+
         }
 
         protected override void InitForm()
