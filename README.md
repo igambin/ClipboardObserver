@@ -1,9 +1,11 @@
 # Clipboard Observer
 Have you ever felt stupid for copying text blocks and inserting them into a specific file again and again. I have joined yet another project using AWS and in doing so I have gotten myself yet another project where I have to regularly update my ~/.aws/credentials file everytime the token lifetime has expired.
 
-Basically that is not a bad thing and I think it is a good addition to security. But I really think copying the keys every ~2 hours is stupid.
+Basically that is not a bad thing and I think it is a good addition to security. But I really think copying the keys every ~2 hours is tedious.
+
 ## So what was I to do about this?
 Based on that I thought about creating a small tool, that allows me to recognize when those credentials have been added to Windows' clipboard buffer and then immediately have the tool overwrite the aws credentials file with the new keys.
+
 ### Development Steps
 
 1. Instead of using my own win32 interface, I found [Willy Kimura's](https://github.com/Willy-Kimura/SharpClipboard/commits?author=Willy-Kimura) [SharpClipboard](https://github.com/Willy-Kimura/SharpClipboard), which I was able to easily incorporate into my tool.
