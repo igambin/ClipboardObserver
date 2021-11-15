@@ -1,5 +1,5 @@
 # Clipboard Observer
-Have you ever felt stupid for copying text blocks and inserting them into a specific file again and again. I have joined yet another project using AWS and in doing so I have gotten myself yet another project where I have to regularly update my ~/.aws/credentials file everytime the token lifetime has run out.
+Have you ever felt stupid for copying text blocks and inserting them into a specific file again and again. I have joined yet another project using AWS and in doing so I have gotten myself yet another project where I have to regularly update my ~/.aws/credentials file everytime the token lifetime has expired.
 
 Basically that is not a bad thing and I think it is a good addition to security. But I really think copying the keys every ~2 hours is stupid.
 ## So what was I to do about this?
