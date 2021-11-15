@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
@@ -25,12 +24,11 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         [JsonIgnore]
         public string AwsCredentialsFullPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws");
 
-        [JsonIgnore]
-        public string AwsCredentialsFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws", "credentials");
+        [JsonIgnore] // called by DataMember-MagicString => 1 reference
+        public string AwsCredentialsFile =>  Path.Combine(AwsCredentialsFullPath, "credentials");
 
-        [JsonIgnore]
-        public string AwsCredentialsConfigFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws", "config");
-
+        [JsonIgnore] // called by DataMember-MagicString => 1 reference
+        public string AwsCredentialsConfigFile => Path.Combine(AwsCredentialsFullPath, "config");
 
         public void Configure(AwsCredentialsConfigOptions options)
         {

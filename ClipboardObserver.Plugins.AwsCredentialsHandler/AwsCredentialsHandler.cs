@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ClipboardObserver.PluginManagement;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using WK.Libraries.SharpClipboardNS;
 
@@ -36,7 +34,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             Clipboard = clipboard;
         }
 
-        static readonly Regex NamePattern = new Regex(@"\[[a-zA-Z0-9_-]+\]");
+        static readonly Regex NamePattern = new(@"\[[a-zA-Z0-9_-]+\]");
 
         public async Task ClipboardChanged()
         {
@@ -54,7 +52,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                     .Where(l => l.Length == 2)
                     .ToList();
 
-            var awsCredentials = new AwsCredentials {
+            AwsCredentials awsCredentials = new(){
                 User               = userLine,
                 Region             = Options.DefaultRegion,
                 AwsAccessKeyId     = keyLines.FirstOrDefault(l => l[0].Trim().ToLower() == "aws_access_key_id")?[1].Trim(),
@@ -62,7 +60,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                 AwsSessionToken    = keyLines.FirstOrDefault(l => l[0].Trim().ToLower() == "aws_session_token")?[1].Trim()
             };
 
-            List<Task> tasks = new List<Task>();
+            List<Task> tasks = new();
             
             if (Options.StoreCredentialsInFile)
             {
@@ -87,7 +85,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
             public string ToString(bool includeRegion = false, bool defaultUser = false)
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 sb.AppendLine(defaultUser ? "[default]" : User);
                 sb.AppendLine($"aws_access_key_id = {AwsAccessKeyId}");
                 sb.AppendLine($"aws_secret_access_key = {AwsSecretAccessKey}");
@@ -116,31 +114,27 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                 )
                 {
                     Directory.CreateDirectory(Options.AwsCredentialsFullPath);
-                    using (var streamWriter = File.CreateText(credentialFile))
+                    await using var credentialWriter = File.CreateText(credentialFile);
+                    await credentialWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile));
+                    if (Options.CloneCredentialsToDefault)
                     {
-                        await streamWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile));
-                        if (Options.CloneCredentialsToDefault)
-                        {
-                            await streamWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile, true));
-                        }
-
-                        await streamWriter.FlushAsync();
-                        OnClipboardProcessed($"File '{credentialFile}' successfully written!");
+                        await credentialWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile, true));
                     }
+
+                    await credentialWriter.FlushAsync();
+                    OnClipboardProcessed($"File '{credentialFile}' successfully written!");
 
                     if (Options.WriteRegionToConfigFile)
                     {
                         var configFile = Path.Combine(Options.AwsCredentialsFullPath, "config");
                         if (!File.Exists(configFile))
                         {
-                            using (var streamWriter = File.CreateText(configFile))
-                            {
-                                await streamWriter.WriteLineAsync("[default]");
-                                await streamWriter.WriteLineAsync(
-                                    $"region = {credentials.Region ?? Options.DefaultRegion}");
-                                await streamWriter.FlushAsync();
-                                OnClipboardProcessed($"File '{configFile}' successfully added!");
-                            }
+                            await using var configWriter = File.CreateText(configFile);
+                            await configWriter.WriteLineAsync("[default]");
+                            await configWriter.WriteLineAsync(
+                                $"region = {credentials.Region ?? Options.DefaultRegion}");
+                            await configWriter.FlushAsync();
+                            OnClipboardProcessed($"File '{configFile}' successfully added!");
                         }
                     }
                 }
@@ -153,10 +147,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
         public void OnClipboardProcessed(string message)
         {
-            if (ClipboardEntryProcessed != null)
-            {
-                ClipboardEntryProcessed(this, new ClipboardEntryProcessedEventArgs {Handler = this, Message = message});
-            }
+            ClipboardEntryProcessed?.Invoke(this, new ClipboardEntryProcessedEventArgs {Handler = this, Message = message});
         }
     }
 }

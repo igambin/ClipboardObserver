@@ -158,7 +158,7 @@ namespace ClipboardObserver
             this.closeObserverToolStripMenuItem.Name = "closeObserverToolStripMenuItem";
             this.closeObserverToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
             this.closeObserverToolStripMenuItem.Text = "Close Observer";
-            this.closeObserverToolStripMenuItem.Click += new System.EventHandler(this.closeObserverToolStripMenuItem_Click);
+            this.closeObserverToolStripMenuItem.Click += new System.EventHandler(this.CloseObserverToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 

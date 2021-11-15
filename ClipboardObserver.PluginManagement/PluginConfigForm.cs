@@ -3,13 +3,11 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Windows.Forms;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Microsoft.Win32.SafeHandles;
 
 namespace ClipboardObserver.PluginManagement
 {
@@ -53,27 +51,12 @@ namespace ClipboardObserver.PluginManagement
                 if (options.TryAdd(OptionsName, Options.CurrentValue))
                 {
                     var obj = JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true });
-                    using (var fwr = new StreamWriter(path))
-                    {
-                        fwr.Write(obj);
-                        fwr.Flush();
-                    }
+                    using var fwr = new StreamWriter(path);
+                    fwr.Write(obj);
+                    fwr.Flush();
                 }
             }
             Hide();
-        }
-
-        private void InitializeComponent()
-        {
-            SuspendLayout();
-            // 
-            // PluginConfigForm
-            // 
-            ClientSize = new System.Drawing.Size(284, 261);
-            Name = "PluginConfigForm";
-            Shown += new System.EventHandler(PluginConfigForm_Shown);
-            ResumeLayout(false);
-
         }
 
         private void PluginConfigForm_Shown(object sender, System.EventArgs e)

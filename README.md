@@ -28,4 +28,4 @@ Thanks in advance!
 
 ---
 ###### Special Thanks go to 
-- Willy Kimura for providing the [SharpClipboard](https://github.com/Willy-Kimura/SharpClipboard) nuget package and if you like my ClipboardObserver, please consider to [buy Willi a coffee](https://www.buymeacoffee.com/willykimura). I really like that I can easily use his nuget package without having to wrap my mind about that part of the code.
+- Willy Kimura for providing the [SharpClipboard](https://github.com/Willy-Kimura/SharpClipboard) nuget package and if you like my ClipboardObserver, please also consider to [buy Willi a coffee](https://www.buymeacoffee.com/willykimura). I really like that I can easily use his nuget package without having to wrap my mind about that part of the code.

@@ -59,7 +59,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.cbToFile.TabIndex = 3;
             this.cbToFile.Text = "Store in AWS credentials file:";
             this.cbToFile.UseVisualStyleBackColor = true;
-            this.cbToFile.CheckedChanged += new System.EventHandler(this.cbToFile_CheckedChanged);
+            this.cbToFile.CheckedChanged += new System.EventHandler(this.CbToFile_CheckedChanged);
             // 
             // cbCloneDefault
             // 

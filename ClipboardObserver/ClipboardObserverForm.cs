@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClipboardObserver.PluginManagement;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using WK.Libraries.SharpClipboardNS;
 using FormWindowState = System.Windows.Forms.FormWindowState;
@@ -25,7 +21,6 @@ namespace ClipboardObserver
 
         private SharpClipboard ClipBoard { get; }
 
-        private IServiceProvider Services { get; }
         
         private Dictionary<string, bool> HandlerActiveStates { get; set; }
 
@@ -34,13 +29,11 @@ namespace ClipboardObserver
 
         public ClipboardObserverForm(
             SharpClipboard clipBoard,
-            IServiceProvider services,
             IEnumerable<IClipboardChangedHandler> clipboardChangedHandlers,
             IEnumerable<IPluginMenuItem> menuItems
             )
         {
             ClipBoard = clipBoard;
-            Services = services;
             ClipboardChangedHandlers = clipboardChangedHandlers;
             MenuItems = menuItems;
             
@@ -114,6 +107,7 @@ namespace ClipboardObserver
         private void StoreSettings()
         {
             var states = JsonConvert.SerializeObject(HandlerActiveStates);
+
             Properties.ClipboardObserver.Default.HandlerActiveStates = states;
 
             Properties.ClipboardObserver.Default.State = WindowState;
@@ -189,11 +183,12 @@ namespace ClipboardObserver
             WindowState = FormWindowState.Normal;
         }
 
-        private void closeObserverToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CloseObserverToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            StoreSettings();
             ClipBoard.StopMonitoring();
             _shutdown = true;
-            StoreSettings();
+            Close();
             Application.Exit();
         }
     }

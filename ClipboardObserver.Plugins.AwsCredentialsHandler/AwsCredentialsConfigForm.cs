@@ -12,8 +12,6 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             IConfiguration configuration,
             IOptionsMonitor<AwsCredentialsConfigOptions> options) : base(configuration, options)
         {
-            InitializeComponent();
-
         }
 
         protected override void InitForm()
@@ -35,7 +33,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             cbAddRegion.Enabled = cbToFile.Checked;
         }
 
-        private void cbToFile_CheckedChanged(object sender, EventArgs e)
+        private void CbToFile_CheckedChanged(object sender, EventArgs e)
         {
             EvaluateEnabledFileOptions();
         }

@@ -60,7 +60,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.configureToolStripMenuItem.Name = "configureToolStripMenuItem";
             this.configureToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.configureToolStripMenuItem.Text = "Configure";
-            this.configureToolStripMenuItem.Click += new System.EventHandler(this.configureToolStripMenuItem_Click);
+            this.configureToolStripMenuItem.Click += new System.EventHandler(this.ConfigureToolStripMenuItem_Click);
             // 
             // deactivateToolStripMenuItem
             // 
