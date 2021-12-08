@@ -40,6 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\ClipboardObserver.Common\ClipboardObserver.Common.csproj" />
 		<ProjectReference Include="..\ClipboardObserver.PluginManagement\ClipboardObserver.PluginManagement.csproj" />
 	</ItemGroup>
 

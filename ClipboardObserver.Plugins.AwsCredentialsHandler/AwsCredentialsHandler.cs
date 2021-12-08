@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ClipboardObserver.PluginManagement;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using WK.Libraries.SharpClipboardNS;
 
@@ -15,8 +15,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
     {
         public event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 
+        public IServiceProvider Services { get; }
         private SharpClipboard Clipboard { get; }
-        
+        public AwsCredentialsFile AwsCredentialsFile { get; }
+
         private AwsCredentialsConfigOptions Options { get; }
         
         public List<SharpClipboard.ContentTypes> TriggeredBy { get; } = new()
@@ -27,14 +29,16 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public bool IsActive { get; set; }
 
         public AwsCredentialsHandler(
+            IServiceProvider services,
             SharpClipboard clipboard, 
+            AwsCredentialsFile awsCredentialsFile,
             IOptionsMonitor<AwsCredentialsConfigOptions> options)
         {
             Options = options.CurrentValue;
+            Services = services;
             Clipboard = clipboard;
+            AwsCredentialsFile = awsCredentialsFile;
         }
-
-        static readonly Regex NamePattern = new(@"\[[a-zA-Z0-9_-]+\]");
 
         public async Task ClipboardChanged()
         {
@@ -42,56 +46,23 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
             var input = Clipboard.ClipboardText;
 
-            var lines = input.Split(Environment.NewLine);
+            AwsCredentials awsCredentials = Services.GetRequiredService<AwsCredentials>().FromProfileSection(input);
 
-            var userLine = lines.SingleOrDefault(l => NamePattern.IsMatch(l))?.Trim();
-
-            var keyLines =
-                lines
-                    .Select(l => l.Split("="))
-                    .Where(l => l.Length == 2)
-                    .ToList();
-
-            AwsCredentials awsCredentials = new(){
-                User               = userLine,
-                Region             = Options.DefaultRegion,
-                AwsAccessKeyId     = keyLines.FirstOrDefault(l => l[0].Trim().ToLower() == "aws_access_key_id")?[1].Trim(),
-                AwsSecretAccessKey = keyLines.FirstOrDefault(l => l[0].Trim().ToLower() == "aws_secret_access_key")?[1].Trim(),
-                AwsSessionToken    = keyLines.FirstOrDefault(l => l[0].Trim().ToLower() == "aws_session_token")?[1].Trim()
-            };
-
-            List<Task> tasks = new();
-            
-            if (Options.StoreCredentialsInFile)
+            if (awsCredentials.IsValid())
             {
-                tasks.Add(StoreCredentialsInFile(awsCredentials));
-            }
+                List<Task> tasks = new();
 
-            if (Options.ExportCredentialsToEnv)
-            {
-                tasks.Add(ExportCredentialsToEnv(awsCredentials));
-            }
-            
-            await Task.WhenAll(tasks);
-        }
+                if (Options.StoreCredentialsInFile)
+                {
+                    tasks.Add(StoreCredentialsInFile(awsCredentials));
+                }
 
-        private class AwsCredentials
-        {
-            public string User { get; set; }
-            public string Region { get; set; }
-            public string AwsAccessKeyId { get; set; }
-            public string AwsSecretAccessKey { get; set; }
-            public string AwsSessionToken { get; set; }
+                if (Options.ExportCredentialsToEnv)
+                {
+                    tasks.Add(ExportCredentialsToEnv(awsCredentials));
+                }
 
-            public string ToString(bool includeRegion = false, bool defaultUser = false)
-            {
-                StringBuilder sb = new();
-                sb.AppendLine(defaultUser ? "[default]" : User);
-                sb.AppendLine($"aws_access_key_id = {AwsAccessKeyId}");
-                sb.AppendLine($"aws_secret_access_key = {AwsSecretAccessKey}");
-                sb.AppendLine($"aws_session_token = {AwsSessionToken}");
-                if (includeRegion) sb.AppendLine($"region = {Region}");
-                return sb.ToString();
+                await Task.WhenAll(tasks);
             }
         }
 
@@ -100,48 +71,40 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             await Task.Delay(100);
         }
 
-        private async Task StoreCredentialsInFile(AwsCredentials credentials)
+        private async Task StoreCredentialsInFile(AwsCredentials copiedCredentials)
         {
-            var credentialFile = Path.Combine(Options.AwsCredentialsFullPath, "credentials");
-
             try
             {
+                await AwsCredentialsFile.LoadFile();
 
-                if (credentials.User != null 
-                    && credentials.AwsAccessKeyId != null
-                    && credentials.AwsSecretAccessKey != null
-                    && credentials.AwsSessionToken != null
-                )
+                AwsCredentialsFile.AddOrUpdateProfile(copiedCredentials);
+                if (Options.CloneCredentialsToDefault)
                 {
-                    Directory.CreateDirectory(Options.AwsCredentialsFullPath);
-                    await using var credentialWriter = File.CreateText(credentialFile);
-                    await credentialWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile));
-                    if (Options.CloneCredentialsToDefault)
-                    {
-                        await credentialWriter.WriteLineAsync(credentials.ToString(Options.AddRegionToCredentialsFile, true));
-                    }
+                    var defaultCredentials = Services.GetRequiredService<AwsCredentials>().UpdateFromProfile(copiedCredentials, "default");
+                    AwsCredentialsFile.AddOrUpdateProfile(defaultCredentials);
+                }
 
-                    await credentialWriter.FlushAsync();
-                    OnClipboardProcessed($"File '{credentialFile}' successfully written!");
+                await AwsCredentialsFile.SaveFile();
+               
+                OnClipboardProcessed($"File '{AwsCredentialsFile.FullName}' successfully written!");
 
-                    if (Options.WriteRegionToConfigFile)
+                if (Options.WriteRegionToConfigFile)
+                {
+                    var configFile = Path.Combine(Options.AwsCredentialsFullPath, "config");
+                    if (!File.Exists(configFile))
                     {
-                        var configFile = Path.Combine(Options.AwsCredentialsFullPath, "config");
-                        if (!File.Exists(configFile))
-                        {
-                            await using var configWriter = File.CreateText(configFile);
-                            await configWriter.WriteLineAsync("[default]");
-                            await configWriter.WriteLineAsync(
-                                $"region = {credentials.Region ?? Options.DefaultRegion}");
-                            await configWriter.FlushAsync();
-                            OnClipboardProcessed($"File '{configFile}' successfully added!");
-                        }
+                        await using var configWriter = File.CreateText(configFile);
+                        await configWriter.WriteLineAsync("[default]");
+                        await configWriter.WriteLineAsync(
+                            $"region = {copiedCredentials.Region ?? Options.DefaultRegion}");
+                        await configWriter.FlushAsync();
+                        OnClipboardProcessed($"File '{configFile}' successfully added!");
                     }
                 }
             }
             catch (Exception ex)
             {
-                OnClipboardProcessed($"Writing file '{credentialFile}' failed: " + ex.Message);
+                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullName}' failed: " + ex.Message);
             }
         }
 

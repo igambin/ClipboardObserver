@@ -5,14 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public class AwsCCredentialsPluginStartup : IPluginStartup
+    public sealed class AwsCCredentialsPluginStartup : IPluginStartup
     {
         public Action<IServiceCollection, IConfiguration> Register(IServiceCollection services, IConfigurationBuilder configBuilder)
         {
-            services.AddTransient<AwsCredentialsConfigOptions>();
-            services.AddTransient<AwsCredentialsConfigForm>();
-            services.AddTransient<IPluginMenuItem, AwsCredentialsMenuItem>();
-            services.AddSingleton<IClipboardChangedHandler, AwsCredentialsHandler>();
+            services
+                .AddTransient<AwsCredentialsConfigOptions>()
+                .AddTransient<AwsCredentialsConfigForm>()
+                .AddTransient<AwsCredentialsFile>()
+                .AddTransient<AwsCredentials>()
+                .AddTransient<IPluginMenuItem, AwsCredentialsMenuItem>()
+                .AddSingleton<IClipboardChangedHandler, AwsCredentialsHandler>();
 
             configBuilder.AddJsonFile($"{nameof(AwsCredentialsConfigOptions)}.json", reloadOnChange: true, optional: false);
 
