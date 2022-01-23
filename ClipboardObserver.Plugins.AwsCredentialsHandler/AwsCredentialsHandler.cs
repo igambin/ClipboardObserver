@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Amazon.S3;
+using Amazon.S3.Model;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -87,7 +89,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 await AwsCredentialsFile.SaveFile();
                
-                OnClipboardProcessed($"File '{AwsCredentialsFile.FullName}' successfully written!");
+                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullName}'!");
+
+                IAmazonS3 s3Client = new AmazonS3Client();
+                ListBucketsResponse buckets = await s3Client.ListBucketsAsync();
 
                 if (Options.WriteRegionToConfigFile)
                 {
