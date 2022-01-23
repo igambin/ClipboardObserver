@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace ClipboardObserver.PluginManagement
 {
@@ -6,5 +7,13 @@ namespace ClipboardObserver.PluginManagement
     {
         public object Handler { get; set; }
         public string Message { get; set; }
+        public ClipboardProcessingEventSeverity Severity { get; set; } = ClipboardProcessingEventSeverity.Info;
+    }
+
+    public enum ClipboardProcessingEventSeverity
+    {
+        Info,
+        Warning,
+        Error
     }
 }

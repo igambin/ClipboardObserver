@@ -12,7 +12,7 @@ namespace ClipboardObserver.PluginManagement
 
         Task ClipboardChanged();
         
-        void OnClipboardProcessed(string message);
+        void OnClipboardProcessed(string message, ClipboardProcessingEventSeverity severity = ClipboardProcessingEventSeverity.Info);
 
         bool IsActive { get; set; }
     }

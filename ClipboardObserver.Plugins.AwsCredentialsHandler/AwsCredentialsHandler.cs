@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Amazon.S3.Model;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -81,6 +77,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                 await AwsCredentialsFile.LoadFile();
 
                 AwsCredentialsFile.AddOrUpdateProfile(copiedCredentials);
+
                 if (Options.CloneCredentialsToDefault)
                 {
                     var defaultCredentials = Services.GetRequiredService<AwsCredentials>().UpdateFromProfile(copiedCredentials, "default");
@@ -88,12 +85,15 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                 }
 
                 await AwsCredentialsFile.SaveFile();
-               
-                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullName}'!");
 
-                IAmazonS3 s3Client = new AmazonS3Client();
-                ListBucketsResponse buckets = await s3Client.ListBucketsAsync();
-
+                if (copiedCredentials.MightFail())
+                {
+                    OnClipboardProcessed($"AWS Secret Key contains '+' and usage may fail. (Known workaround: Logout & Login & Copy until the AWS Secret Key does not contain '+'.)", ClipboardProcessingEventSeverity.Warning);
+                } else
+                {
+                    OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullName}'!");
+                }
+                
                 if (Options.WriteRegionToConfigFile)
                 {
                     var configFile = Path.Combine(Options.AwsCredentialsFullPath, "config");
@@ -110,13 +110,13 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             }
             catch (Exception ex)
             {
-                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullName}' failed: " + ex.Message);
+                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullName}' failed: " + ex.Message, ClipboardProcessingEventSeverity.Error);
             }
         }
 
-        public void OnClipboardProcessed(string message)
+        public void OnClipboardProcessed(string message, ClipboardProcessingEventSeverity severity = ClipboardProcessingEventSeverity.Info)
         {
-            ClipboardEntryProcessed?.Invoke(this, new ClipboardEntryProcessedEventArgs {Handler = this, Message = message});
+            ClipboardEntryProcessed?.Invoke(this, new ClipboardEntryProcessedEventArgs {Handler = this, Message = message, Severity = severity});
         }
     }
 }

@@ -75,6 +75,8 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                                  && !string.IsNullOrWhiteSpace(AwsSecretAccessKey)
                                  && !string.IsNullOrWhiteSpace(AwsSessionToken);
 
+        public bool MightFail() => AwsSecretAccessKey.Contains('+');
+
         public override string ToString()
         {
             return ToString(null);

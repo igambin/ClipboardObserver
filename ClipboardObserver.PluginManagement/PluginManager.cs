@@ -24,9 +24,9 @@ namespace ClipboardObserver.PluginManagement
             
             assemblies.AddRange(dlls.Select(Assembly.LoadFile));
 
-            List<Type> plugins = 
+            List<Type> plugins =
                 assemblies
-                    .SelectMany(x => x.GetTypes())
+                    .SelectMany(x => x.ExportedTypes)
                     .Where(y => typeof(IPluginStartup).IsAssignableFrom(y) && !y.IsInterface)
                     .ToList();
 

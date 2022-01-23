@@ -126,11 +126,19 @@ namespace ClipboardObserver
             Properties.ClipboardObserver.Default.Save();
         }
 
+        private Dictionary<ClipboardProcessingEventSeverity, ToolTipIcon> SeverityToIconMap = 
+            new Dictionary<ClipboardProcessingEventSeverity, ToolTipIcon> {
+                { ClipboardProcessingEventSeverity.Info, ToolTipIcon.Info },
+                { ClipboardProcessingEventSeverity.Warning, ToolTipIcon.Warning },
+                { ClipboardProcessingEventSeverity.Error, ToolTipIcon.Error },
+        };
+            
+
         private void ClipboardEntryProcessed(object source, ClipboardEntryProcessedEventArgs args)
         {
             textBox1.AppendText($"{args.Handler.GetType().Name}: {args.Message}{Environment.NewLine}");
             ClipboardObserverNotifier.BalloonTipTitle = args.Handler.GetType().Name;
-            ClipboardObserverNotifier.BalloonTipIcon = ToolTipIcon.Info;
+            ClipboardObserverNotifier.BalloonTipIcon = SeverityToIconMap[args.Severity];
             ClipboardObserverNotifier.BalloonTipText = args.Message;
             ClipboardObserverNotifier.ShowBalloonTip(1000);
         }
