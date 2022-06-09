@@ -173,7 +173,12 @@ namespace ClipboardObserver
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             WindowState = FormWindowState.Minimized;
-            if (!_shutdown)
+
+            if(_shutdown || e.CloseReason == CloseReason.WindowsShutDown) {
+                StoreSettings();
+                ClipBoard.StopMonitoring();
+            }
+            else
             {
                 e.Cancel = true;
             }
@@ -193,11 +198,8 @@ namespace ClipboardObserver
 
         private void CloseObserverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StoreSettings();
-            ClipBoard.StopMonitoring();
             _shutdown = true;
             Close();
-            Application.Exit();
         }
     }
 }
