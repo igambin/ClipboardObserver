@@ -40,6 +40,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.tbCfgFileName = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.unsetEnvVariablesButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tbFileName
@@ -47,7 +48,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.tbFileName.Location = new System.Drawing.Point(31, 113);
             this.tbFileName.Name = "tbFileName";
             this.tbFileName.ReadOnly = true;
-            this.tbFileName.Size = new System.Drawing.Size(231, 23);
+            this.tbFileName.Size = new System.Drawing.Size(291, 23);
             this.tbFileName.TabIndex = 1;
             // 
             // cbToFile
@@ -104,7 +105,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             // 
             this.tbRegion.Location = new System.Drawing.Point(62, 15);
             this.tbRegion.Name = "tbRegion";
-            this.tbRegion.Size = new System.Drawing.Size(200, 23);
+            this.tbRegion.Size = new System.Drawing.Size(260, 23);
             this.tbRegion.TabIndex = 8;
             // 
             // cbWriteConfig
@@ -122,7 +123,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.tbCfgFileName.Location = new System.Drawing.Point(31, 226);
             this.tbCfgFileName.Name = "tbCfgFileName";
             this.tbCfgFileName.ReadOnly = true;
-            this.tbCfgFileName.Size = new System.Drawing.Size(231, 23);
+            this.tbCfgFileName.Size = new System.Drawing.Size(291, 23);
             this.tbCfgFileName.TabIndex = 12;
             // 
             // button1
@@ -137,7 +138,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(186, 261);
+            this.button2.Location = new System.Drawing.Point(247, 261);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 14;
@@ -145,11 +146,22 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.SaveButton_Click);
             // 
+            // unsetEnvVariablesButton
+            // 
+            this.unsetEnvVariablesButton.Location = new System.Drawing.Point(266, 50);
+            this.unsetEnvVariablesButton.Name = "unsetEnvVariablesButton";
+            this.unsetEnvVariablesButton.Size = new System.Drawing.Size(56, 23);
+            this.unsetEnvVariablesButton.TabIndex = 15;
+            this.unsetEnvVariablesButton.Text = "Unset";
+            this.unsetEnvVariablesButton.UseVisualStyleBackColor = true;
+            this.unsetEnvVariablesButton.Click += new System.EventHandler(this.unsetEnvVariablesButton_Click);
+            // 
             // AwsCredentialsConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(274, 296);
+            this.ClientSize = new System.Drawing.Size(334, 296);
+            this.Controls.Add(this.unsetEnvVariablesButton);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.tbCfgFileName);
@@ -162,9 +174,9 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             this.Controls.Add(this.cbToFile);
             this.Controls.Add(this.cbToEnv);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(290, 335);
+            this.MaximumSize = new System.Drawing.Size(350, 335);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(290, 335);
+            this.MinimumSize = new System.Drawing.Size(350, 335);
             this.Name = "AwsCredentialsConfigForm";
             this.Text = "AWS Credentials Options";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AwsCredentialsConfigForm_FormClosing);
@@ -191,5 +203,6 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         private System.Windows.Forms.TextBox tbCfgFileName;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button unsetEnvVariablesButton;
     }
 }

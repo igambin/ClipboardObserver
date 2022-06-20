@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -17,13 +18,14 @@ namespace ClipboardObserver.PluginManagement
 
         protected string OptionsName { get; }
 
-        protected IOptionsMonitor<TOptions> Options { get; private set; }
+        protected TOptions Options => _options.CurrentValue;
+        private readonly IOptionsMonitor<TOptions> _options;
 
-        public PluginConfigForm(IConfiguration config, IOptionsMonitor<TOptions> options)
+        protected PluginConfigForm(IConfiguration config, IOptionsMonitor<TOptions> options)
         {
             _config = config;
+            _options = options;
             OptionsName = typeof(TOptions).Name;
-            Options = options;
             InitForm();
         }
 
@@ -48,7 +50,7 @@ namespace ClipboardObserver.PluginManagement
             {
                 var path = Path.Combine(fileProvider.Root, $"{OptionsName}.json");
                 var options = new ExpandoObject();
-                if (options.TryAdd(OptionsName, Options.CurrentValue))
+                if (options.TryAdd(OptionsName, Options))
                 {
                     var obj = JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true });
                     using var fwr = new StreamWriter(path);

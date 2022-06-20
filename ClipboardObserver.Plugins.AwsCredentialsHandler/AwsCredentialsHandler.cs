@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -16,9 +18,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public IServiceProvider Services { get; }
         private SharpClipboard Clipboard { get; }
         public AwsCredentialsFile AwsCredentialsFile { get; }
-
-        private AwsCredentialsConfigOptions Options { get; }
         
+        private AwsCredentialsConfigOptions Options { get; }
+        private string Username { get; } = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+
         public List<SharpClipboard.ContentTypes> TriggeredBy { get; } = new()
         {
             SharpClipboard.ContentTypes.Text
@@ -44,7 +47,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
             var input = Clipboard.ClipboardText;
 
-            AwsCredentials awsCredentials = Services.GetRequiredService<AwsCredentials>().FromProfileSection(input);
+            var awsCredentials = Services.GetRequiredService<AwsCredentials>().FromProfileSection(input);
 
             if (awsCredentials.IsValid())
             {
@@ -57,17 +60,23 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 if (Options.ExportCredentialsToEnv)
                 {
-                    tasks.Add(ExportCredentialsToEnv(awsCredentials));
+                    ExportCredentialsToEnv(awsCredentials);
                 }
 
                 await Task.WhenAll(tasks);
             }
         }
 
-        private async Task ExportCredentialsToEnv(AwsCredentials credentials)
+        private void ExportCredentialsToEnv(AwsCredentials credentials)
         {
-            // TODO ... not yet implemented
-            await Task.Delay(100);
+            Task.Run(() =>
+            {
+                Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", credentials.AwsAccessKeyId, EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", credentials.AwsSecretAccessKey, EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable("AWS_SESSION_TOKEN", credentials.AwsSessionToken, EnvironmentVariableTarget.User);
+            });
+            OnClipboardProcessed(
+                $"Credentials of [{credentials.UserName}] set to environment variables for user '{Username}'");
         }
 
         private async Task StoreCredentialsInFile(AwsCredentials copiedCredentials)

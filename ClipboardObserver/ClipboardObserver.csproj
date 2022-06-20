@@ -8,11 +8,17 @@
 		<ApplicationIcon>resources\icon.ico</ApplicationIcon>
 		<BaseOutputPath>..\build</BaseOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<Configurations>Debug;Release;EditForm</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>C:\git\ClipboardObserver\build\release</OutputPath>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditForm|AnyCPU'">
+	  <OutputPath>C:\git\ClipboardObserver\build\release</OutputPath>
+	  <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
