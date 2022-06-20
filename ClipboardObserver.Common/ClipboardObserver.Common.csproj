@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<BaseOutputPath>..\build</BaseOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<Configurations>Debug;Release;EditForm</Configurations>
+		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
 
 </Project>
