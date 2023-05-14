@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
 		<AssemblyName>ClipboardObserver</AssemblyName>
 		<ApplicationIcon>resources\icon.ico</ApplicationIcon>
@@ -14,11 +14,13 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>C:\git\ClipboardObserver\build\release</OutputPath>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<OutputPath>C:\git\ClipboardObserver\build\debug</OutputPath>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup>
