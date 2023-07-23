@@ -46,6 +46,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\ClipboardObserver.Common\ClipboardObserver.Common.csproj" />
 		<ProjectReference Include="..\ClipboardObserver.PluginManagement\ClipboardObserver.PluginManagement.csproj" />
+		<ProjectReference Include="..\ClipboardObserver.Plugins.AwsCredentialsHandler\ClipboardObserver.Plugins.AwsCredentialsHandler.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

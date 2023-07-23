@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using ClipboardObserver.Common;
@@ -9,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public sealed class AwsCredentials
+    public class AwsCredentials
     {
         public AwsCredentialsConfigOptions Options { get; }
         private const string DefaultProfileName = "default";
@@ -21,19 +24,38 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             private static readonly Regex AwsAccessKeyIdPattern = new(@"\s*aws_access_key_id\s*=\s*(?<accesskey>\w+)\s*");
             private static readonly Regex AwsSecretAccessKeyPattern = new(@"\s*aws_secret_access_key\s*=\s*(?<secretkey>[\w/+]+)\s*");
             private static readonly Regex AwsSessionTokenPattern = new(@"\s*aws_session_token\s*=\s*(?<sessiontoken>[\w/+]+)\s*");
+            private static readonly Regex SourceProfilePattern = new(@"\s*source_profile\s*=\s*(?<sourceprofile>\w+)\s*");
+            private static readonly Regex RoleArnPattern = new(@"\s*role_arn\s*=\s*(?<rolearn>[\w:/]+)\s*");
             public static readonly RegExMatcher UserNameMatcher = new(UserNamePattern);
             public static readonly RegExPattern Name = new(UserNamePattern, (groups) => groups["profilename"].ToString());
             public static readonly RegExPattern Region = new(RegionPattern, (groups) => groups["regionname"].ToString());
             public static readonly RegExPattern AccessKeyId = new(AwsAccessKeyIdPattern, (groups) => groups["accesskey"].ToString());
             public static readonly RegExPattern SecretAccessKey = new(AwsSecretAccessKeyPattern, (groups) => groups["secretkey"].ToString());
             public static readonly RegExPattern SessionToken = new(AwsSessionTokenPattern, (groups) => groups["sessiontoken"].ToString());
+            public static readonly RegExPattern SourceProfile = new(SourceProfilePattern, (groups) => groups["sourceprofile"].ToString());
+            public static readonly RegExPattern RoleArn = new(RoleArnPattern, (groups) => groups["rolearn"].ToString());
         }
 
+        [Description("[{0}]")]
         public string UserName { get; set; }
+        
+        [Description("region = {0}")]
         public string Region { get; set; }
+        
+        [Description("aws_access_key_id = {0}")]
         public string AwsAccessKeyId { get; set; }
+        
+        [Description("aws_secret_access_key = {0}")]
         public string AwsSecretAccessKey { get; set; }
+        
+        [Description("aws_session_token = {0}")]
         public string AwsSessionToken { get; set; }
+        
+        [Description("source_profile = {0}")]
+        public string SourceProfile { get; set; }
+        
+        [Description("role_arn = {0}")]
+        public string RoleArn { get; set; }
 
         public AwsCredentials(
             IOptionsMonitor<AwsCredentialsConfigOptions> options
@@ -50,6 +72,15 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             AwsAccessKeyId = profile.AwsAccessKeyId;
             AwsSecretAccessKey = profile.AwsSecretAccessKey;
             AwsSessionToken = profile.AwsSessionToken;
+            if (!string.IsNullOrWhiteSpace(profile.SourceProfile))
+            {
+                SourceProfile = profile.SourceProfile;
+            }
+
+            if (!string.IsNullOrWhiteSpace(profile.RoleArn))
+            {
+                RoleArn = profile.RoleArn;
+            }
             return this;
         }
 
@@ -61,6 +92,8 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             AwsAccessKeyId = RegexPatterns.AccessKeyId.Transform(input);
             AwsSecretAccessKey = RegexPatterns.SecretAccessKey.Transform(input);
             AwsSessionToken = RegexPatterns.SessionToken.Transform(input);
+            SourceProfile = RegexPatterns.SourceProfile.Transform(input);
+            RoleArn = RegexPatterns.RoleArn.Transform(input);
             return this;
         }
 
@@ -70,10 +103,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public bool IsDefault() => UserName == DefaultProfileName;
 
         public bool IsValid() => !string.IsNullOrWhiteSpace(UserName)
-                                 && !string.IsNullOrWhiteSpace(Region)
-                                 && !string.IsNullOrWhiteSpace(AwsAccessKeyId)
-                                 && !string.IsNullOrWhiteSpace(AwsSecretAccessKey)
-                                 && !string.IsNullOrWhiteSpace(AwsSessionToken);
+                                  && !string.IsNullOrWhiteSpace(Region)
+                                  && !string.IsNullOrWhiteSpace(AwsAccessKeyId)
+                                  && !string.IsNullOrWhiteSpace(AwsSecretAccessKey)
+                                  && !string.IsNullOrWhiteSpace(AwsSessionToken);
 
         public bool MightFail() => false; // AwsAccessKeyId.Contains('+')||AwsSecretAccessKey.Contains('+'); // right now there seems to be no known critical case
 
@@ -82,18 +115,30 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             return ToString(null);
         }
 
+        private void AppendLine(StringBuilder sb, AwsCredentials entity, Expression<Func<AwsCredentials, string>> expression)
+        {
+            var memberExpression = (MemberExpression)expression.Body;
+            var value = expression.Compile()(entity);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                var attr = memberExpression.Member.GetCustomAttribute<DescriptionAttribute>();
+                var tmpl = attr?.Description ?? $"no template defined for {memberExpression.Member.Name}";
+                sb.AppendLine(string.Format(tmpl, value));
+            }
+        }
+        
         public string ToString(string defaultRegion)
         {
             StringBuilder sb = new();
-            sb.AppendLine($"[{UserName}]");
-            sb.AppendLine($"aws_access_key_id = {AwsAccessKeyId}");
-            sb.AppendLine($"aws_secret_access_key = {AwsSecretAccessKey}");
-            sb.AppendLine($"aws_session_token = {AwsSessionToken}");
-            var region = Region ?? defaultRegion;
-            if (region != null)
-            {
-                sb.AppendLine($"region = {region}");
-            }
+            AppendLine(sb, this, x => x.UserName);
+            AppendLine(sb, this, x => x.AwsAccessKeyId);
+            AppendLine(sb, this, x => x.AwsSecretAccessKey);
+            AppendLine(sb, this, x => x.AwsSessionToken);
+            AppendLine(sb, this, x => x.SourceProfile);
+            AppendLine(sb, this, x => x.RoleArn);
+            Region ??= defaultRegion;
+            AppendLine(sb, this, x => x.Region);
+            
             return sb.ToString();
         }
     }

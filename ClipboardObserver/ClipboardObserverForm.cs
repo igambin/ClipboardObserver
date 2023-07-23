@@ -20,7 +20,6 @@ namespace ClipboardObserver
         private bool _shutdown = false;
 
         private SharpClipboard ClipBoard { get; }
-
         
         private Dictionary<string, bool> HandlerActiveStates { get; set; }
 
