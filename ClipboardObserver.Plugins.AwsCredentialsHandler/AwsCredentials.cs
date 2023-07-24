@@ -25,7 +25,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             private static readonly Regex AwsSecretAccessKeyPattern = new(@"\s*aws_secret_access_key\s*=\s*(?<secretkey>[\w/+]+)\s*");
             private static readonly Regex AwsSessionTokenPattern = new(@"\s*aws_session_token\s*=\s*(?<sessiontoken>[\w/+]+)\s*");
             private static readonly Regex SourceProfilePattern = new(@"\s*source_profile\s*=\s*(?<sourceprofile>\w+)\s*");
-            private static readonly Regex RoleArnPattern = new(@"\s*role_arn\s*=\s*(?<rolearn>[\w:/]+)\s*");
+            private static readonly Regex RoleArnPattern = new(@"\s*role_arn\s*=\s*(?<rolearn>[\w:/_-]+)\s*");
             public static readonly RegExMatcher UserNameMatcher = new(UserNamePattern);
             public static readonly RegExPattern Name = new(UserNamePattern, (groups) => groups["profilename"].ToString());
             public static readonly RegExPattern Region = new(RegionPattern, (groups) => groups["regionname"].ToString());
