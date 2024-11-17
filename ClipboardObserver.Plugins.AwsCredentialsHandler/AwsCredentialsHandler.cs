@@ -11,35 +11,25 @@ using WK.Libraries.SharpClipboardNS;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public class AwsCredentialsHandler : IClipboardChangedHandler
+    public class AwsCredentialsHandler(
+        IServiceProvider services,
+        SharpClipboard clipboard,
+        AwsCredentialsFile awsCredentialsFile,
+        IOptionsMonitor<AwsCredentialsConfigOptions> options)
+        : IClipboardChangedHandler
     {
         public event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 
-        public IServiceProvider Services { get; }
-        private SharpClipboard Clipboard { get; }
-        public AwsCredentialsFile AwsCredentialsFile { get; }
-        
-        private AwsCredentialsConfigOptions Options { get; }
+        public IServiceProvider Services { get; } = services;
+        private SharpClipboard Clipboard { get; } = clipboard;
+        public AwsCredentialsFile AwsCredentialsFile { get; } = awsCredentialsFile;
+
+        private AwsCredentialsConfigOptions Options { get; } = options.CurrentValue;
         private string Username { get; } = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
-        public List<SharpClipboard.ContentTypes> TriggeredBy { get; } = new()
-        {
-            SharpClipboard.ContentTypes.Text
-        };
+        public List<SharpClipboard.ContentTypes> TriggeredBy { get; } = [SharpClipboard.ContentTypes.Text];
 
         public bool IsActive { get; set; }
-
-        public AwsCredentialsHandler(
-            IServiceProvider services,
-            SharpClipboard clipboard, 
-            AwsCredentialsFile awsCredentialsFile,
-            IOptionsMonitor<AwsCredentialsConfigOptions> options)
-        {
-            Options = options.CurrentValue;
-            Services = services;
-            Clipboard = clipboard;
-            AwsCredentialsFile = awsCredentialsFile;
-        }
 
         public async Task ClipboardChanged()
         {
@@ -51,7 +41,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
             if (awsCredentials.IsValid())
             {
-                List<Task> tasks = new();
+                List<Task> tasks = [];
 
                 if (Options.StoreCredentialsInFile)
                 {
@@ -95,13 +85,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 await AwsCredentialsFile.SaveFile();
 
-                if (copiedCredentials.MightFail())
-                {
-                    OnClipboardProcessed($"AWS Secret Key contains '+' and usage may fail. (Known workaround: Logout & Login & Copy until the AWS Secret Key does not contain '+'.)", ClipboardProcessingEventSeverity.Warning);
-                } else
-                {
-                    OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullName}'!");
-                }
+                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullPath}'!");
                 
                 if (Options.WriteRegionToConfigFile)
                 {
@@ -119,7 +103,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             }
             catch (Exception ex)
             {
-                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullName}' failed: " + ex.Message, ClipboardProcessingEventSeverity.Error);
+                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullPath}' failed: " + ex.Message, ClipboardProcessingEventSeverity.Error);
             }
         }
 

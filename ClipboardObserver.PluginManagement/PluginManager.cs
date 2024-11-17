@@ -10,7 +10,7 @@ namespace ClipboardObserver.PluginManagement
 {
     public class PluginManager 
     {
-        public List<Action<IServiceCollection, IConfiguration>> Startup(IServiceCollection services, IConfigurationBuilder configBuilder)
+        public static List<Action<IServiceCollection, IConfiguration>> Startup(IServiceCollection services, IConfigurationBuilder configBuilder)
         {
             var path = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName;
 
@@ -20,7 +20,7 @@ namespace ClipboardObserver.PluginManagement
                     .Where(dll => new FileInfo(dll).Name.StartsWith($"ClipboardObserver.Plugins"))
                     .ToList();
 
-            List<Assembly> assemblies = new();
+            List<Assembly> assemblies = [];
             
             assemblies.AddRange(dlls.Select(Assembly.LoadFile));
 
@@ -30,7 +30,7 @@ namespace ClipboardObserver.PluginManagement
                     .Where(y => typeof(IPluginStartup).IsAssignableFrom(y) && !y.IsInterface)
                     .ToList();
 
-            List<Action<IServiceCollection, IConfiguration>> optionsConfigurators = new();
+            List<Action<IServiceCollection, IConfiguration>> optionsConfigurators = [];
 
             plugins.ForEach(tPlugin =>
             {

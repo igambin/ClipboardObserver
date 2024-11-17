@@ -52,8 +52,7 @@ namespace ClipboardObserver
                     .AddSingleton<SharpClipboard>();
 
 
-            var pm = new PluginManager();
-            var optionSetters = pm.Startup(services, configBuilder);
+            var optionSetters = PluginManager.Startup(services, configBuilder);
             
             Configuration = configBuilder.Build();
 

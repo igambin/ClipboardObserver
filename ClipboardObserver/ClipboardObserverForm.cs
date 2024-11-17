@@ -20,7 +20,7 @@ namespace ClipboardObserver
         private bool _shutdown = false;
 
         private SharpClipboard ClipBoard { get; }
-        
+
         private Dictionary<string, bool> HandlerActiveStates { get; set; }
 
         public IEnumerable<IClipboardChangedHandler> ClipboardChangedHandlers { get; }
@@ -35,7 +35,7 @@ namespace ClipboardObserver
             ClipBoard = clipBoard;
             ClipboardChangedHandlers = clipboardChangedHandlers;
             MenuItems = menuItems;
-            
+
             InitForm();
 
             ClipBoard.ClipboardChanged += ClipboardChanged;
@@ -55,16 +55,16 @@ namespace ClipboardObserver
                 .ForEach(x =>
                 {
                     x.ClipboardEntryProcessed += ClipboardEntryProcessed;
-                    if(!HandlerActiveStates.ContainsKey(x.GetType().Name))
+                    if (!HandlerActiveStates.ContainsKey(x.GetType().Name))
                     {
                         HandlerActiveStates.Add(x.GetType().Name, true);
                         x.IsActive = true;
-                    } 
+                    }
                     else
                     {
                         x.IsActive = HandlerActiveStates[x.GetType().Name];
                     }
-                    x.OnClipboardProcessed($"~ subscribes new {string.Join("/", x.TriggeredBy)} clipboard items and is {(x.IsActive?"en":"dis")}abled!");
+                    x.OnClipboardProcessed($"~ subscribes new {string.Join("/", x.TriggeredBy)} clipboard items and is {(x.IsActive ? "en" : "dis")}abled!");
 
                 });
 
@@ -85,14 +85,14 @@ namespace ClipboardObserver
             HandlerActiveStates = new Dictionary<string, bool>();
 
             if (!string.IsNullOrWhiteSpace(Properties.ClipboardObserver.Default.HandlerActiveStates))
-            { 
+            {
                 HandlerActiveStates = JsonConvert.DeserializeObject<Dictionary<string, bool>>(Properties.ClipboardObserver.Default.HandlerActiveStates);
             }
 
             if (Properties.ClipboardObserver.Default.Size.Width == 0 || Properties.ClipboardObserver.Default.Size.Height == 0)
             {
                 WindowState = FormWindowState.Normal;
-                Location = new System.Drawing.Point(200,200);
+                Location = new System.Drawing.Point(200, 200);
                 Size = new System.Drawing.Size(600, 200);
             }
             else
@@ -110,7 +110,7 @@ namespace ClipboardObserver
             Properties.ClipboardObserver.Default.HandlerActiveStates = states;
 
             Properties.ClipboardObserver.Default.State = WindowState;
-            
+
             if (WindowState == FormWindowState.Normal)
             {
                 Properties.ClipboardObserver.Default.Location = Location;
@@ -121,7 +121,7 @@ namespace ClipboardObserver
                 Properties.ClipboardObserver.Default.Location = RestoreBounds.Location;
                 Properties.ClipboardObserver.Default.Size = RestoreBounds.Size;
             }
-            
+
             Properties.ClipboardObserver.Default.Save();
         }
 
@@ -131,7 +131,7 @@ namespace ClipboardObserver
                 { ClipboardProcessingEventSeverity.Warning, ToolTipIcon.Warning },
                 { ClipboardProcessingEventSeverity.Error, ToolTipIcon.Error },
         };
-            
+
 
         private void ClipboardEntryProcessed(object source, ClipboardEntryProcessedEventArgs args)
         {
@@ -173,7 +173,8 @@ namespace ClipboardObserver
         {
             WindowState = FormWindowState.Minimized;
 
-            if(_shutdown || e.CloseReason == CloseReason.WindowsShutDown) {
+            if (_shutdown || e.CloseReason == CloseReason.WindowsShutDown)
+            {
                 StoreSettings();
                 ClipBoard.StopMonitoring();
             }
@@ -199,6 +200,19 @@ namespace ClipboardObserver
         {
             _shutdown = true;
             Close();
+        }
+
+        private void aboutLabel_DoubleClick(object sender, EventArgs e)
+        {
+            AboutBox1 a = new();
+            a.Show();
+
+        }
+
+        private void aboutLabel_Click(object sender, EventArgs e)
+        {
+            AboutBox1 a = new();
+            a.Show();
         }
     }
 }

@@ -16,8 +16,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
     {
         public AwsCredentialsConfigOptions Options { get; }
         private const string DefaultProfileName = "default";
-
-        public sealed class RegexPatterns
+      public sealed class RegexPatterns
         {
             private static readonly Regex UserNamePattern = new(@"\s*\[(?<profilename>[a-zA-Z0-9_-]+)\]\s*");
             private static readonly Regex RegionPattern = new(@"\s*region\s*=\s*(?<regionname>[\w-]+)\s*");
@@ -36,6 +35,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             public static readonly RegExPattern RoleArn = new(RoleArnPattern, (groups) => groups["rolearn"].ToString());
         }
 
+  
         [Description("[{0}]")]
         public string UserName { get; set; }
         
@@ -107,8 +107,6 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                                   && !string.IsNullOrWhiteSpace(AwsAccessKeyId)
                                   && !string.IsNullOrWhiteSpace(AwsSecretAccessKey)
                                   && !string.IsNullOrWhiteSpace(AwsSessionToken);
-
-        public bool MightFail() => false; // AwsAccessKeyId.Contains('+')||AwsSecretAccessKey.Contains('+'); // right now there seems to be no known critical case
 
         public override string ToString()
         {

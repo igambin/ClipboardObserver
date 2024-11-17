@@ -11,21 +11,26 @@ using Microsoft.Extensions.Options;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public sealed class AwsCredentialsFile
+    public sealed class AwsCredentialsFile(
+        IServiceProvider services,
+        IOptionsMonitor<AwsCredentialsConfigOptions> options)
     {
-        public IServiceProvider Services { get; }
+        public IServiceProvider Services { get; } = services;
 
-        public AwsCredentialsConfigOptions Options { get; }
+        public AwsCredentialsConfigOptions Options { get; } = options.CurrentValue;
 
-        private FileInfo CredentialsFile { get; }
 
-        public string FullName => CredentialsFile?.FullName ?? "[unspecified]";
+        private static FileInfo File { get; } = new (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws", "credentials"));
+
+        private static DirectoryInfo Folder { get; } = File.Directory;
+
+        public string FullPath { get; } = File?.FullName ?? "[unspecified]";
 
         private List<AwsCredentials> Profiles { get; set; }
 
         public AwsCredentials GetDefaultProfile() => Profiles?.FirstOrDefault(p=>p.IsDefault());
 
-        public AwsCredentials GetProfileByName(string userName) => Profiles.FirstOrDefault(p => p.UserName.ToLowerInvariant() == userName.ToLowerInvariant());
+        public AwsCredentials GetProfileByName(string userName) => Profiles.FirstOrDefault(p => string.Equals(p.UserName, userName, StringComparison.InvariantCultureIgnoreCase));
 
         public void AddOrUpdateProfile(AwsCredentials credentials)
         {
@@ -37,30 +42,29 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             }
             toUpdate.UpdateFromProfile(credentials);
         }
-        
-        public AwsCredentialsFile(
-            IServiceProvider services,
-            IOptionsMonitor<AwsCredentialsConfigOptions> options)
+
+        private static void EnsureCredentialsFileExists()
         {
-            Services = services;
-            Options = options.CurrentValue;
-            var awsConfigFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws");
-            var awsCredentialFileName = Path.Combine(awsConfigFolderPath, "credentials");
-            CredentialsFile = new FileInfo(awsCredentialFileName);
-            if (!Directory.Exists(awsConfigFolderPath)) 
+            if (!Folder.Exists)
             {
-                Directory.CreateDirectory(awsConfigFolderPath);
+                Folder.Create();
             }
+
+            if (File.Exists) return;
+
+            using (var fs = new FileStream(File.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
+
         }
 
         public async Task LoadFile()
         {
-            Profiles = await ParseCredentialFile(CredentialsFile);
+            EnsureCredentialsFileExists();
+            Profiles = await ParseCredentialFile(File);
         }
 
         public async Task SaveFile()
         {
-            await using var credentialsWriter = CredentialsFile.CreateText();
+            await using var credentialsWriter = File.CreateText();
             foreach(var p in Profiles)
             {
                 await credentialsWriter.WriteLineAsync(p.ToString());
@@ -70,11 +74,11 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
         private async Task<List<AwsCredentials>> ParseCredentialFile(FileInfo credFile)
         {
-            var input = await File.ReadAllLinesAsync(credFile.FullName);
+            var input = await System.IO.File.ReadAllLinesAsync(credFile.FullName);
 
-            List<string> profileSections = new();
-            StringBuilder profileSection = new();
-            bool hasStartedReadingProfiles = false;
+            List<string> profileSections = [];
+            var profileSection = new StringBuilder();
+            var hasStartedReadingProfiles = false;
 
             foreach (var line in input)
             {

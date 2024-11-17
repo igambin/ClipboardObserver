@@ -22,12 +22,16 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public bool WriteRegionToConfigFile { get; set; }
 
         [JsonIgnore]
+#pragma warning disable CA1822 // Mark members as static 
         public string AwsCredentialsFullPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws");
+#pragma warning restore CA1822 // Mark members as static
 
-        [JsonIgnore] // called by DataMember-MagicString => 1 reference
+        [JsonIgnore]
+        // ReSharper disable once UnusedMember.Global => called by DataMember-MagicString
         public string AwsCredentialsFile =>  Path.Combine(AwsCredentialsFullPath, "credentials");
 
-        [JsonIgnore] // called by DataMember-MagicString => 1 reference
+        [JsonIgnore]
+        // ReSharper disable once UnusedMember.Global => called by DataMember-MagicString 
         public string AwsCredentialsConfigFile => Path.Combine(AwsCredentialsFullPath, "config");
 
         public void Configure(AwsCredentialsConfigOptions options)
