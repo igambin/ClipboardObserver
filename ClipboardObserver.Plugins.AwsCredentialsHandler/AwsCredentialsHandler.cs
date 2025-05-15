@@ -29,7 +29,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             Services = services;
             AwsCredentialsFile = awsCredentialsFile;
             Options = options.CurrentValue;
-            clipboard.ClipboardChanged += async (o, args) => await ClipboardChanged();
+            clipboard.ClipboardChanged += async (o, args) =>
+            {
+                await ClipboardChanged();
+            };
         }
         
         private string Username { get; } = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
@@ -43,6 +46,9 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             if (!IsActive) return;
 
             var input = Clipboard.ClipboardText;
+
+            if (input.Equals(_lastClipboardContent)) return;
+            _lastClipboardContent = input;
 
             var awsCredentials = Services.GetRequiredService<AwsCredentials>().FromProfileSection(input);
 
@@ -88,8 +94,18 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 await AwsCredentialsFile.SaveFile();
 
-                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.CredentialsFileName}'!");
-                
+                var msg = $"Credentials file '{AwsCredentialsFile.CredentialsFileName}' updated:";
+                if (!Options.WriteDefaultProfileOnly)
+                {
+                    msg += $" [{copiedCredentials.UserName}]";
+                }
+                if (Options.CloneCredentialsToDefault)
+                {
+                    msg += $" and [default]";
+                }
+
+                OnClipboardProcessed(msg);
+
                 if (Options.WriteRegionToConfigFile)
                 {
                     var configFile = Path.Combine(Options.AwsCredentialsFullPath, "config");
