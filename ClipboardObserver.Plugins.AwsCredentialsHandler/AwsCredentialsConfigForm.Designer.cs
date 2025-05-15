@@ -1,4 +1,4 @@
-﻿
+﻿ 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
     partial class AwsCredentialsConfigForm

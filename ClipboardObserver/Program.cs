@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using ClipboardObserver.Common;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,10 +12,6 @@ namespace ClipboardObserver
 {
     static class Program
     {
-        public static IConfiguration Configuration { get; private set; }
-
-        public static IServiceProvider ServiceProvider { get; private set; }
-
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -27,7 +24,8 @@ namespace ClipboardObserver
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var form = ServiceProvider.GetService<ClipboardObserverForm>();
+            
+            var form = GlobalInstances.ServiceProvider.GetService<ClipboardObserverForm>();
             Application.Run(form);
         }
 
@@ -53,14 +51,14 @@ namespace ClipboardObserver
 
 
             var optionSetters = PluginManager.Startup(services, configBuilder);
-            
-            Configuration = configBuilder.Build();
 
-            optionSetters.ForEach(o => o.Invoke(services, Configuration));
+            GlobalInstances.Configuration = configBuilder.Build();
 
-            services.AddSingleton(Configuration);
+            optionSetters.ForEach(o => o.Invoke(services, GlobalInstances.Configuration));
 
-            ServiceProvider = services.BuildServiceProvider();
+            services.AddSingleton(GlobalInstances.Configuration);
+
+            GlobalInstances.ServiceProvider = services.BuildServiceProvider();
 
 
         }

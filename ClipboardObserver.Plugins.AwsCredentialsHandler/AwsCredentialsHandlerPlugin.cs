@@ -12,7 +12,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             services
                 .AddTransient<AwsCredentialsConfigOptions>()
                 .AddTransient<AwsCredentialsConfigForm>()
-                .AddTransient<AwsCredentialsFile>()
+                .AddSingleton<AwsCredentialsFile>()
                 .AddTransient<AwsCredentials>()
                 .AddTransient<IPluginMenuItem, AwsCredentialsMenuItem>()
                 .AddSingleton<IClipboardChangedHandler, AwsCredentialsHandler>();

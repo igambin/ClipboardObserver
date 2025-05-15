@@ -3,21 +3,25 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ClipboardObserver.Common;
 using ClipboardObserver.PluginManagement;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public partial class AwsCredentialsConfigForm : PluginConfigForm<AwsCredentialsConfigOptions>
+    public partial class AwsCredentialsConfigForm : PluginConfigForm
     {
-        public AwsCredentialsConfigForm(
-            IConfiguration configuration,
-            IOptionsMonitor<AwsCredentialsConfigOptions> options): base(configuration, options)
+
+
+        public AwsCredentialsConfigForm() : base()
         {
+            InitForm();
         }
 
-        protected override void InitForm()
+        protected void InitForm()
         {
             InitializeComponent();
+            base.InitForm<AwsCredentialsConfigForm>(GlobalInstances.ServiceProvider);
             tbRegion.DataBindings.Add("Text", Options, "DefaultRegion");
             cbToEnv.DataBindings.Add("Checked", Options, "ExportCredentialsToEnv");
             cbToFile.DataBindings.Add("Checked", Options, "StoreCredentialsInFile");

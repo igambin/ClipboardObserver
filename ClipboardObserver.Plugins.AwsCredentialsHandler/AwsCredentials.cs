@@ -12,11 +12,14 @@ using Microsoft.Extensions.Options;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public class AwsCredentials
+    public class AwsCredentials(IOptionsMonitor<AwsCredentialsConfigOptions> options)
     {
-        public AwsCredentialsConfigOptions Options { get; }
+
+        public AwsCredentialsConfigOptions Options { get; } = options.CurrentValue;
+
         private const string DefaultProfileName = "default";
-      public sealed class RegexPatterns
+
+        public sealed class RegexPatterns
         {
             private static readonly Regex UserNamePattern = new(@"\s*\[(?<profilename>[a-zA-Z0-9_-]+)\]\s*");
             private static readonly Regex RegionPattern = new(@"\s*region\s*=\s*(?<regionname>[\w-]+)\s*");
@@ -35,40 +38,32 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             public static readonly RegExPattern RoleArn = new(RoleArnPattern, (groups) => groups["rolearn"].ToString());
         }
 
-  
         [Description("[{0}]")]
         public string UserName { get; set; }
-        
+
         [Description("region = {0}")]
         public string Region { get; set; }
-        
+
         [Description("aws_access_key_id = {0}")]
         public string AwsAccessKeyId { get; set; }
-        
+
         [Description("aws_secret_access_key = {0}")]
         public string AwsSecretAccessKey { get; set; }
-        
+
         [Description("aws_session_token = {0}")]
         public string AwsSessionToken { get; set; }
-        
+
         [Description("source_profile = {0}")]
         public string SourceProfile { get; set; }
-        
+
         [Description("role_arn = {0}")]
         public string RoleArn { get; set; }
-
-        public AwsCredentials(
-            IOptionsMonitor<AwsCredentialsConfigOptions> options
-            )
-        {
-            Options = options.CurrentValue;
-        }
 
         public AwsCredentials UpdateFromProfile(AwsCredentials profile, string newUserName = null)
         {
             UserName = newUserName ?? profile.UserName;
             Region = profile.Region;
-            if(string.IsNullOrWhiteSpace(Region)) Region = Options.DefaultRegion;
+            if (string.IsNullOrWhiteSpace(Region)) Region = Options.DefaultRegion;
             AwsAccessKeyId = profile.AwsAccessKeyId;
             AwsSecretAccessKey = profile.AwsSecretAccessKey;
             AwsSessionToken = profile.AwsSessionToken;
@@ -84,7 +79,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             return this;
         }
 
-        public AwsCredentials FromProfileSection(string input) 
+        public AwsCredentials FromProfileSection(string input)
         {
             UserName = RegexPatterns.Name.Transform(input);
             Region = RegexPatterns.Region.Transform(input);
@@ -117,14 +112,14 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         {
             var memberExpression = (MemberExpression)expression.Body;
             var value = expression.Compile()(entity);
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                var attr = memberExpression.Member.GetCustomAttribute<DescriptionAttribute>();
-                var tmpl = attr?.Description ?? $"no template defined for {memberExpression.Member.Name}";
-                sb.AppendLine(string.Format(tmpl, value));
-            }
+            
+            if (string.IsNullOrWhiteSpace(value)) return;
+            
+            var attr = memberExpression.Member.GetCustomAttribute<DescriptionAttribute>();
+            var tmpl = attr?.Description ?? $"no template defined for {memberExpression.Member.Name}";
+            sb.AppendLine(string.Format(tmpl, value));
         }
-        
+
         public string ToString(string defaultRegion)
         {
             StringBuilder sb = new();
@@ -136,7 +131,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             AppendLine(sb, this, x => x.RoleArn);
             Region ??= defaultRegion;
             AppendLine(sb, this, x => x.Region);
-            
+
             return sb.ToString();
         }
     }

@@ -16,6 +16,8 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public bool StoreCredentialsInFile { get; set; }
 
         public bool CloneCredentialsToDefault { get; set; }
+        
+        public bool WriteDefaultProfileOnly { get; set; }
 
         public bool AddRegionToCredentialsFile { get; set; }
 
@@ -42,6 +44,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             CloneCredentialsToDefault = options?.CloneCredentialsToDefault ?? true;
             AddRegionToCredentialsFile = options?.AddRegionToCredentialsFile ?? false;
             WriteRegionToConfigFile = options?.WriteRegionToConfigFile ?? true;
+            WriteDefaultProfileOnly = options?.WriteDefaultProfileOnly ?? false;
         }
     }
 }

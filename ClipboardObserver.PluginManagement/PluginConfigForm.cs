@@ -7,29 +7,29 @@ using System.Text.Json;
 using System.Windows.Forms;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 namespace ClipboardObserver.PluginManagement
 {
-    public abstract class PluginConfigForm<TOptions> : Form
+    public class PluginConfigForm : Form
     {
-        private readonly IConfiguration _config;
+        private IConfiguration Config { get; set; }
+        private string OptionsName { get; set; }
+        protected object Options { get; set; }
 
-        protected string OptionsName { get; }
-
-        protected TOptions Options => _options.CurrentValue;
-        private readonly IOptionsMonitor<TOptions> _options;
-
-        protected PluginConfigForm(IConfiguration config, IOptionsMonitor<TOptions> options)
+        public PluginConfigForm()
         {
-            _config = config;
-            _options = options;
-            OptionsName = typeof(TOptions).Name;
-            InitForm();
         }
 
-        protected abstract void InitForm();
+        protected virtual void InitForm<TForm>(IServiceProvider provider)
+        {
+            Config = provider.GetRequiredService<IConfiguration>();
+            var monitor = provider.GetRequiredService<IOptionsMonitor<TForm>>();
+            OptionsName = typeof(TForm).Name;
+            Options = monitor.CurrentValue;
+        }
 
         protected void CancelConfig()
         {
@@ -38,7 +38,7 @@ namespace ClipboardObserver.PluginManagement
 
         protected void SaveConfig()
         {
-            var configRoot = (IConfigurationRoot)_config;
+            var configRoot = (IConfigurationRoot)Config;
 
             var configProvider =
                 configRoot
@@ -52,7 +52,10 @@ namespace ClipboardObserver.PluginManagement
                 var options = new ExpandoObject();
                 if (options.TryAdd(OptionsName, Options))
                 {
-                    var obj = JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true });
+                    var obj = JsonSerializer.Serialize(
+                        options, 
+                        new JsonSerializerOptions { WriteIndented = true }
+                    );
                     using var fwr = new StreamWriter(path);
                     fwr.Write(obj);
                     fwr.Flush();
@@ -61,9 +64,9 @@ namespace ClipboardObserver.PluginManagement
             Hide();
         }
 
-        private void PluginConfigForm_Shown(object sender, System.EventArgs e)
-        {
-            InitForm();
-        }
+        //private void PluginConfigForm_Shown(object sender, System.EventArgs e)
+        //{
+        //    InitForm();
+        //}
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using ClipboardObserver.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -15,22 +16,28 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         IServiceProvider services,
         IOptionsMonitor<AwsCredentialsConfigOptions> options)
     {
+
         public IServiceProvider Services { get; } = services;
 
         public AwsCredentialsConfigOptions Options { get; } = options.CurrentValue;
 
-
-        private static FileInfo File { get; } = new (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aws", "credentials"));
-
-        private static DirectoryInfo Folder { get; } = File.Directory;
-
-        public string FullPath { get; } = File?.FullName ?? "[unspecified]";
+        public string CredentialsFileName { get; init; } = Path.Combine(
+            Environment.GetFolderPath(
+                Environment.SpecialFolder.UserProfile
+            ),
+            ".aws",
+            "credentials"
+        );
 
         private List<AwsCredentials> Profiles { get; set; }
 
-        public AwsCredentials GetDefaultProfile() => Profiles?.FirstOrDefault(p=>p.IsDefault());
+        public AwsCredentials GetDefaultProfile()
+            => Profiles?.FirstOrDefault(p => p.IsDefault());
 
-        public AwsCredentials GetProfileByName(string userName) => Profiles.FirstOrDefault(p => string.Equals(p.UserName, userName, StringComparison.InvariantCultureIgnoreCase));
+        private AwsCredentials GetProfileByName(string userName)
+            => Profiles.FirstOrDefault(
+                p => string.Equals(p.UserName, userName, StringComparison.InvariantCultureIgnoreCase)
+            );
 
         public void AddOrUpdateProfile(AwsCredentials credentials)
         {
@@ -43,50 +50,94 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             toUpdate.UpdateFromProfile(credentials);
         }
 
-        private static void EnsureCredentialsFileExists()
-        {
-            if (!Folder.Exists)
-            {
-                Folder.Create();
-            }
-
-            if (File.Exists) return;
-
-            using (var fs = new FileStream(File.FullName, FileMode.Create, FileAccess.Write, FileShare.None));
-
-        }
 
         public async Task LoadFile()
         {
-            EnsureCredentialsFileExists();
-            Profiles = await ParseCredentialFile(File);
+            Profiles = await ParseCredentialFile();
         }
 
         public async Task SaveFile()
         {
-            await using var credentialsWriter = File.CreateText();
-            foreach(var p in Profiles)
+            FileInfo credentialsFile = new(CredentialsFileName);
+
+            // Retry logic to handle IOException when file is in use
+            const int maxRetries = 3;
+            const int delayMs = 200;
+            int retries = 0;
+
+            while (true)
             {
-                await credentialsWriter.WriteLineAsync(p.ToString());
+                try
+                {
+                    await using var credentialsWriter = credentialsFile.CreateText();
+                    foreach (
+                        var p in
+                        Profiles.Where(p => !Options.WriteDefaultProfileOnly || p.IsDefault()
+                        )
+                    )
+                    {
+                        await credentialsWriter.WriteLineAsync(p.ToString());
+                    }
+                    await credentialsWriter.FlushAsync();
+                    break; // Success, exit loop
+                }
+                catch (IOException ex)
+                {
+                    retries++;
+                    if (retries >= maxRetries)
+                        throw new IOException($"Could not write to credentials file after {maxRetries} attempts: {ex.Message}", ex);
+
+                    await Task.Delay(delayMs);
+                }
             }
-            await credentialsWriter.FlushAsync();
         }
 
-        private async Task<List<AwsCredentials>> ParseCredentialFile(FileInfo credFile)
+        private async Task<List<AwsCredentials>> ParseCredentialFile()
         {
-            var input = await System.IO.File.ReadAllLinesAsync(credFile.FullName);
-
-            List<string> profileSections = [];
-            var profileSection = new StringBuilder();
-            var hasStartedReadingProfiles = false;
-
-            foreach (var line in input)
+            FileInfo credentialsFile = new(CredentialsFileName);
+            try
             {
-                if (string.IsNullOrWhiteSpace(line.Trim()))
+                if (credentialsFile.Directory is { Exists: false })
                 {
-                    continue;
+                    credentialsFile.Directory.Create();
                 }
 
+                if (!credentialsFile.Exists)
+                {
+                    await using var _ = File.Create(credentialsFile.FullName);
+                    return [];
+                }
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error creating credentials file: {e.Message}");
+            }
+
+            var lines = await ReadFile();
+            var profileSections = ParseProfileSections(lines);
+            var profiles = ConvertProfilesToAwsCredentials(profileSections);
+            return profiles;
+        }
+
+        private List<AwsCredentials> ConvertProfilesToAwsCredentials(List<string> profileSections)
+            => profileSections
+                .Select(ps =>
+                    Services
+                        .GetRequiredService<AwsCredentials>()
+                        .FromProfileSection(ps)
+                )
+                .ToList();
+
+
+        private List<string> ParseProfileSections(List<string> lines)
+        {
+            List<string> profileSections = [];
+
+            var profileSection = new StringBuilder();
+            var hasStartedReadingProfiles = false;
+            foreach (var line in lines.Where(line => !string.IsNullOrWhiteSpace(line.Trim())))
+            {
                 if (AwsCredentials.RegexPatterns.UserNameMatcher.IsMatch(line))
                 {
                     if (hasStartedReadingProfiles)
@@ -111,14 +162,20 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
                 profileSections.Add(profileSection.ToString());
             }
 
-            var profiles = profileSections
-                .Select(ps => 
-                    Services
-                        .GetRequiredService<AwsCredentials>()
-                        .FromProfileSection(ps)
-                    )
-                .ToList();
-            return profiles;
+            return profileSections;
+        }
+
+        private async Task<List<string>> ReadFile()
+        {
+            FileInfo credentialsFile = new(CredentialsFileName);
+            var lines = new List<string>();
+            using var credentialsReader = credentialsFile.OpenText();
+            while (!credentialsReader.EndOfStream)
+            {
+                lines.Add(await credentialsReader.ReadLineAsync());
+            }
+            credentialsReader.Close();
+            return lines;
         }
     }
 }

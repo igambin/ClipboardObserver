@@ -38,7 +38,7 @@ namespace ClipboardObserver
 
             InitForm();
 
-            ClipBoard.ClipboardChanged += ClipboardChanged;
+            ClipBoard.ClipboardChanged += (sender,args) => Task.Run(async () => await ClipboardChanged(sender, args));
         }
 
         public void InitForm()
@@ -55,14 +55,15 @@ namespace ClipboardObserver
                 .ForEach(x =>
                 {
                     x.ClipboardEntryProcessed += ClipboardEntryProcessed;
-                    if (!HandlerActiveStates.ContainsKey(x.GetType().Name))
+                    
+                    if (!HandlerActiveStates.TryGetValue(x.GetType().Name, out var value))
                     {
                         HandlerActiveStates.Add(x.GetType().Name, true);
                         x.IsActive = true;
                     }
                     else
                     {
-                        x.IsActive = HandlerActiveStates[x.GetType().Name];
+                        x.IsActive = value;
                     }
                     x.OnClipboardProcessed($"~ subscribes new {string.Join("/", x.TriggeredBy)} clipboard items and is {(x.IsActive ? "en" : "dis")}abled!");
 
@@ -125,31 +126,34 @@ namespace ClipboardObserver
             Properties.ClipboardObserver.Default.Save();
         }
 
-        private Dictionary<ClipboardProcessingEventSeverity, ToolTipIcon> SeverityToIconMap = 
-            new Dictionary<ClipboardProcessingEventSeverity, ToolTipIcon> {
+        private readonly Dictionary<ClipboardProcessingEventSeverity, ToolTipIcon> _severityToIconMap = 
+            new()
+            {
                 { ClipboardProcessingEventSeverity.Info, ToolTipIcon.Info },
                 { ClipboardProcessingEventSeverity.Warning, ToolTipIcon.Warning },
                 { ClipboardProcessingEventSeverity.Error, ToolTipIcon.Error },
-        };
+            };
 
 
         private void ClipboardEntryProcessed(object source, ClipboardEntryProcessedEventArgs args)
         {
-            textBox1.AppendText($"{args.Handler.GetType().Name}: {args.Message}{Environment.NewLine}");
+            var now  = $"{DateTime.Now:u}";
+            textBox1.AppendText($"{now} - {args.Handler.GetType().Name}: {args.Message}{Environment.NewLine}");
             ClipboardObserverNotifier.BalloonTipTitle = args.Handler.GetType().Name;
-            ClipboardObserverNotifier.BalloonTipIcon = SeverityToIconMap[args.Severity];
-            ClipboardObserverNotifier.BalloonTipText = args.Message;
+            ClipboardObserverNotifier.BalloonTipIcon = _severityToIconMap[args.Severity];
+            ClipboardObserverNotifier.BalloonTipText = $@"{now}{Environment.NewLine}{args.Message}";
             ClipboardObserverNotifier.ShowBalloonTip(1000);
         }
 
-        private async void ClipboardChanged(object sender, SharpClipboard.ClipboardChangedEventArgs e)
+        private async Task ClipboardChanged(object sender, SharpClipboard.ClipboardChangedEventArgs e)
         {
-            var tasks = ClipboardChangedHandlers
-                .Where(s => s.TriggeredBy.Contains(e.ContentType))
-                .ToList()
-                .Select(async s => await s.ClipboardChanged());
-
-            await Task.WhenAll(tasks);
+            foreach(var handler in 
+                    ClipboardChangedHandlers
+                        .Where(s => s.TriggeredBy.Contains(e.ContentType))
+                        .ToList())
+            {
+                await handler.ClipboardChanged();
+            };
 
             switch (e.ContentType)
             {

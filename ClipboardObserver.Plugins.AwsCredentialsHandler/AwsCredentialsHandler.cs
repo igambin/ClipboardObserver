@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,20 +9,29 @@ using WK.Libraries.SharpClipboardNS;
 
 namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 {
-    public class AwsCredentialsHandler(
-        IServiceProvider services,
-        SharpClipboard clipboard,
-        AwsCredentialsFile awsCredentialsFile,
-        IOptionsMonitor<AwsCredentialsConfigOptions> options)
-        : IClipboardChangedHandler
+    public class AwsCredentialsHandler : IClipboardChangedHandler
     {
         public event ClipboardEntryProcessedEventHandler ClipboardEntryProcessed;
 
-        public IServiceProvider Services { get; } = services;
-        private SharpClipboard Clipboard { get; } = clipboard;
-        public AwsCredentialsFile AwsCredentialsFile { get; } = awsCredentialsFile;
+        private IServiceProvider Services { get; }
+        private SharpClipboard Clipboard { get; }
+        private AwsCredentialsFile AwsCredentialsFile { get; }
+        private AwsCredentialsConfigOptions Options { get; }
+        private string _lastClipboardContent = string.Empty;
 
-        private AwsCredentialsConfigOptions Options { get; } = options.CurrentValue;
+        public AwsCredentialsHandler(
+            IServiceProvider services,
+            SharpClipboard clipboard,
+            AwsCredentialsFile awsCredentialsFile,
+            IOptionsMonitor<AwsCredentialsConfigOptions> options
+            ) {
+            Clipboard = clipboard;
+            Services = services;
+            AwsCredentialsFile = awsCredentialsFile;
+            Options = options.CurrentValue;
+            clipboard.ClipboardChanged += async (o, args) => await ClipboardChanged();
+        }
+        
         private string Username { get; } = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
         public List<SharpClipboard.ContentTypes> TriggeredBy { get; } = [SharpClipboard.ContentTypes.Text];
@@ -41,19 +48,15 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
             if (awsCredentials.IsValid())
             {
-                List<Task> tasks = [];
-
                 if (Options.StoreCredentialsInFile)
                 {
-                    tasks.Add(StoreCredentialsInFile(awsCredentials));
+                    await StoreCredentialsInFile(awsCredentials);
                 }
 
                 if (Options.ExportCredentialsToEnv)
                 {
                     ExportCredentialsToEnv(awsCredentials);
                 }
-
-                await Task.WhenAll(tasks);
             }
         }
 
@@ -74,10 +77,10 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             try
             {
                 await AwsCredentialsFile.LoadFile();
-
+                
                 AwsCredentialsFile.AddOrUpdateProfile(copiedCredentials);
 
-                if (Options.CloneCredentialsToDefault)
+                if (Options.CloneCredentialsToDefault || Options.WriteDefaultProfileOnly)
                 {
                     var defaultCredentials = Services.GetRequiredService<AwsCredentials>().UpdateFromProfile(copiedCredentials, "default");
                     AwsCredentialsFile.AddOrUpdateProfile(defaultCredentials);
@@ -85,7 +88,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 await AwsCredentialsFile.SaveFile();
 
-                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.FullPath}'!");
+                OnClipboardProcessed($"Credentials of [{copiedCredentials.UserName}] successfully written to file '{AwsCredentialsFile.CredentialsFileName}'!");
                 
                 if (Options.WriteRegionToConfigFile)
                 {
@@ -103,7 +106,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             }
             catch (Exception ex)
             {
-                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.FullPath}' failed: " + ex.Message, ClipboardProcessingEventSeverity.Error);
+                OnClipboardProcessed($"Writing file '{AwsCredentialsFile.CredentialsFileName}' failed: " + ex.Message, ClipboardProcessingEventSeverity.Error);
             }
         }
 
