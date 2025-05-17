@@ -205,18 +205,5 @@ namespace ClipboardObserver
             _shutdown = true;
             Close();
         }
-
-        private void aboutLabel_DoubleClick(object sender, EventArgs e)
-        {
-            AboutBox1 a = new();
-            a.Show();
-
-        }
-
-        private void aboutLabel_Click(object sender, EventArgs e)
-        {
-            AboutBox1 a = new();
-            a.Show();
-        }
     }
 }

@@ -71,15 +71,6 @@ namespace ClipboardObserver
             statusStrip1.TabIndex = 1;
             statusStrip1.Text = "statusStrip1";
             // 
-            // aboutLabel
-            // 
-            aboutLabel.Margin = new System.Windows.Forms.Padding(20, 3, 100, 2);
-            aboutLabel.Name = "aboutLabel";
-            aboutLabel.Size = new System.Drawing.Size(40, 17);
-            aboutLabel.Text = "About";
-            aboutLabel.Click += aboutLabel_Click;
-            aboutLabel.DoubleClick += aboutLabel_DoubleClick;
-            // 
             // toolStripStatusLabel1
             // 
             toolStripStatusLabel1.ForeColor = System.Drawing.SystemColors.GrayText;
