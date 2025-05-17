@@ -4,7 +4,7 @@ Have you ever felt stupid for copying text blocks and inserting them into a spec
 Basically I fully agree, from a security point of view it does make sense. But in the end I really think having to copy the keys every ~1-2 hours is simply annoying.
 
 ## So what was I to do about this?
-So I came up with this little tool, which will observe Windows' clipboard buffer and whenever new AWS Credentials have been copied, will recognize them by matching a regex pattern and then immediately write them to the file %USERDIR%/.aws/credentials.
+So I came up with this little tool, which will observe Windows' clipboard buffer and whenever new AWS Credentials have been copied, will recognize them by matching a regex pattern and then immediately write them to the file %USERPROFILE%/.aws/credentials.
 
 ### Development Steps
 
