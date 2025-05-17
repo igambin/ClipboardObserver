@@ -16,31 +16,42 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public AwsCredentialsConfigForm() : base()
         {
             InitForm();
+            this.Shown += AwsCredentialsConfigForm_Shown1;
         }
 
         protected void InitForm()
         {
             InitializeComponent();
-            base.InitForm<AwsCredentialsConfigForm>(GlobalInstances.ServiceProvider);
+            base.InitForm<AwsCredentialsConfigOptions>(GlobalInstances.ServiceProvider);
             tbRegion.DataBindings.Add("Text", Options, "DefaultRegion");
             cbToEnv.DataBindings.Add("Checked", Options, "ExportCredentialsToEnv");
             cbToFile.DataBindings.Add("Checked", Options, "StoreCredentialsInFile");
             tbFileName.DataBindings.Add("Text", Options, "AwsCredentialsFile");
             cbCloneDefault.DataBindings.Add("Checked", Options, "CloneCredentialsToDefault");
+            cbDefaultOnly.DataBindings.Add("Checked", Options, "WriteDefaultProfileOnly", true, DataSourceUpdateMode.OnPropertyChanged);
             cbAddRegion.DataBindings.Add("Checked", Options, "AddRegionToCredentialsFile");
             cbWriteConfig.DataBindings.Add("Checked", Options, "WriteRegionToConfigFile");
             tbCfgFileName.DataBindings.Add("Text", Options, "AwsCredentialsConfigFile");
         }
 
-        private void EvaluateEnabledFileOptions()
+        private void AwsCredentialsConfigForm_Shown1(object sender, EventArgs e)
         {
-            cbCloneDefault.Enabled =
+            CbDefaultOnly_CheckedChanged(cbDefaultOnly, EventArgs.Empty);
+        }
+        
+        private void CbToFile_CheckedChanged(object sender, EventArgs e)
+        {
+            cbCloneDefault.Enabled = !cbCloneDefault.Checked;
             cbAddRegion.Enabled = cbToFile.Checked;
         }
 
-        private void CbToFile_CheckedChanged(object sender, EventArgs e)
+        private void CbDefaultOnly_CheckedChanged(object sender, EventArgs e)
         {
-            EvaluateEnabledFileOptions();
+            if (cbDefaultOnly.Checked)
+            {
+                cbCloneDefault.Checked = true;
+            }
+            cbCloneDefault.Enabled = !cbDefaultOnly.Checked;
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
@@ -50,7 +61,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            SaveConfig();
+            SaveConfig<AwsCredentialsConfigOptions>();
         }
 
         private void AwsCredentialsConfigForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -71,5 +82,6 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             MessageBox.Show(
                 "Programmatic removal of these environment variables will take ~30 seconds. Please don't close this app before.");
         }
+
     }
 }

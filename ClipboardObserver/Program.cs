@@ -18,18 +18,22 @@ namespace ClipboardObserver
         [STAThread]
         static void Main()
         {
-            Startup(new ServiceCollection());
-            
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            CreateServiceProvider(new ServiceCollection());
             
-            var form = GlobalInstances.ServiceProvider.GetService<ClipboardObserverForm>();
-            Application.Run(form);
+            RunObserverForm();
         }
 
-        private static void Startup(IServiceCollection services)
+        private static void RunObserverForm()
+        {
+            var mainForm = GlobalInstances.ServiceProvider.GetService<ClipboardObserverForm>();
+            Application.Run(mainForm);
+        }
+
+        private static void CreateServiceProvider(IServiceCollection services)
         {
             var configBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

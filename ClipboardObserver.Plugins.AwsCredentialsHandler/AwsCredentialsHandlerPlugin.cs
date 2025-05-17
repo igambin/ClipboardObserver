@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ClipboardObserver.PluginManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,14 +11,20 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         public Action<IServiceCollection, IConfiguration> Register(IServiceCollection services, IConfigurationBuilder configBuilder)
         {
             services
-                .AddTransient<AwsCredentialsConfigOptions>()
-                .AddTransient<AwsCredentialsConfigForm>()
-                .AddSingleton<AwsCredentialsFile>()
+                .AddSingleton<AwsCredentialsConfigForm>()
+                .AddTransient<AwsCredentialsFile>()
                 .AddTransient<AwsCredentials>()
                 .AddTransient<IPluginMenuItem, AwsCredentialsMenuItem>()
-                .AddSingleton<IClipboardChangedHandler, AwsCredentialsHandler>();
+                .AddTransient<IClipboardChangedHandler, AwsCredentialsHandler>()
+                .AddOptions<AwsCredentialsConfigOptions>();
 
-            configBuilder.AddJsonFile($"{nameof(AwsCredentialsConfigOptions)}.json", reloadOnChange: true, optional: false);
+            var optionsPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "ClipboardObserver", 
+                $"{nameof(AwsCredentialsConfigOptions)}.json"
+                );
+
+            configBuilder.AddJsonFile(optionsPath, reloadOnChange: true, optional: false);
 
             return ConfigureOptions;
         }

@@ -29,159 +29,185 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         /// </summary>
         private void InitializeComponent()
         {
-            this.tbFileName = new System.Windows.Forms.TextBox();
-            this.cbToFile = new System.Windows.Forms.CheckBox();
-            this.cbCloneDefault = new System.Windows.Forms.CheckBox();
-            this.cbAddRegion = new System.Windows.Forms.CheckBox();
-            this.cbToEnv = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.tbRegion = new System.Windows.Forms.TextBox();
-            this.cbWriteConfig = new System.Windows.Forms.CheckBox();
-            this.tbCfgFileName = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.unsetEnvVariablesButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            tbFileName = new System.Windows.Forms.TextBox();
+            cbToFile = new System.Windows.Forms.CheckBox();
+            cbCloneDefault = new System.Windows.Forms.CheckBox();
+            cbAddRegion = new System.Windows.Forms.CheckBox();
+            cbToEnv = new System.Windows.Forms.CheckBox();
+            label1 = new System.Windows.Forms.Label();
+            tbRegion = new System.Windows.Forms.TextBox();
+            cbWriteConfig = new System.Windows.Forms.CheckBox();
+            tbCfgFileName = new System.Windows.Forms.TextBox();
+            button1 = new System.Windows.Forms.Button();
+            button2 = new System.Windows.Forms.Button();
+            unsetEnvVariablesButton = new System.Windows.Forms.Button();
+            cbDefaultOnly = new System.Windows.Forms.CheckBox();
+            SuspendLayout();
             // 
             // tbFileName
             // 
-            this.tbFileName.Location = new System.Drawing.Point(31, 113);
-            this.tbFileName.Name = "tbFileName";
-            this.tbFileName.ReadOnly = true;
-            this.tbFileName.Size = new System.Drawing.Size(291, 23);
-            this.tbFileName.TabIndex = 1;
+            tbFileName.Location = new System.Drawing.Point(35, 151);
+            tbFileName.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            tbFileName.Name = "tbFileName";
+            tbFileName.ReadOnly = true;
+            tbFileName.Size = new System.Drawing.Size(332, 27);
+            tbFileName.TabIndex = 1;
             // 
             // cbToFile
             // 
-            this.cbToFile.AutoSize = true;
-            this.cbToFile.Location = new System.Drawing.Point(12, 88);
-            this.cbToFile.Name = "cbToFile";
-            this.cbToFile.Size = new System.Drawing.Size(175, 19);
-            this.cbToFile.TabIndex = 3;
-            this.cbToFile.Text = "Store in AWS credentials file:";
-            this.cbToFile.UseVisualStyleBackColor = true;
-            this.cbToFile.CheckedChanged += new System.EventHandler(this.CbToFile_CheckedChanged);
+            cbToFile.AutoSize = true;
+            cbToFile.Location = new System.Drawing.Point(14, 117);
+            cbToFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbToFile.Name = "cbToFile";
+            cbToFile.Size = new System.Drawing.Size(221, 24);
+            cbToFile.TabIndex = 3;
+            cbToFile.Text = "Store in AWS credentials file:";
+            cbToFile.UseVisualStyleBackColor = true;
+            cbToFile.CheckedChanged += CbToFile_CheckedChanged;
             // 
             // cbCloneDefault
             // 
-            this.cbCloneDefault.AutoSize = true;
-            this.cbCloneDefault.Location = new System.Drawing.Point(31, 142);
-            this.cbCloneDefault.Name = "cbCloneDefault";
-            this.cbCloneDefault.Size = new System.Drawing.Size(206, 19);
-            this.cbCloneDefault.TabIndex = 3;
-            this.cbCloneDefault.Text = "clone credentials to default profile";
-            this.cbCloneDefault.UseVisualStyleBackColor = true;
+            cbCloneDefault.AutoSize = true;
+            cbCloneDefault.Location = new System.Drawing.Point(35, 189);
+            cbCloneDefault.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbCloneDefault.Name = "cbCloneDefault";
+            cbCloneDefault.Size = new System.Drawing.Size(260, 24);
+            cbCloneDefault.TabIndex = 3;
+            cbCloneDefault.Text = "clone credentials to default profile";
+            cbCloneDefault.UseVisualStyleBackColor = true;
             // 
             // cbAddRegion
             // 
-            this.cbAddRegion.AutoSize = true;
-            this.cbAddRegion.Location = new System.Drawing.Point(31, 167);
-            this.cbAddRegion.Name = "cbAddRegion";
-            this.cbAddRegion.Size = new System.Drawing.Size(176, 19);
-            this.cbAddRegion.TabIndex = 4;
-            this.cbAddRegion.Text = "add region to credentials file";
-            this.cbAddRegion.UseVisualStyleBackColor = true;
+            cbAddRegion.AutoSize = true;
+            cbAddRegion.Location = new System.Drawing.Point(35, 253);
+            cbAddRegion.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbAddRegion.Name = "cbAddRegion";
+            cbAddRegion.Size = new System.Drawing.Size(223, 24);
+            cbAddRegion.TabIndex = 4;
+            cbAddRegion.Text = "add region to credentials file";
+            cbAddRegion.UseVisualStyleBackColor = true;
             // 
             // cbToEnv
             // 
-            this.cbToEnv.AutoSize = true;
-            this.cbToEnv.Location = new System.Drawing.Point(12, 54);
-            this.cbToEnv.Name = "cbToEnv";
-            this.cbToEnv.Size = new System.Drawing.Size(248, 19);
-            this.cbToEnv.TabIndex = 6;
-            this.cbToEnv.Text = "Export Credentials to System Environment";
-            this.cbToEnv.UseVisualStyleBackColor = true;
+            cbToEnv.AutoSize = true;
+            cbToEnv.Location = new System.Drawing.Point(14, 72);
+            cbToEnv.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbToEnv.Name = "cbToEnv";
+            cbToEnv.Size = new System.Drawing.Size(308, 24);
+            cbToEnv.TabIndex = 6;
+            cbToEnv.Text = "Export Credentials to System Environment";
+            cbToEnv.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 15);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Region";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(14, 24);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(56, 20);
+            label1.TabIndex = 7;
+            label1.Text = "Region";
             // 
             // tbRegion
             // 
-            this.tbRegion.Location = new System.Drawing.Point(62, 15);
-            this.tbRegion.Name = "tbRegion";
-            this.tbRegion.Size = new System.Drawing.Size(260, 23);
-            this.tbRegion.TabIndex = 8;
+            tbRegion.Location = new System.Drawing.Point(71, 20);
+            tbRegion.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            tbRegion.Name = "tbRegion";
+            tbRegion.Size = new System.Drawing.Size(297, 27);
+            tbRegion.TabIndex = 8;
             // 
             // cbWriteConfig
             // 
-            this.cbWriteConfig.AutoSize = true;
-            this.cbWriteConfig.Location = new System.Drawing.Point(12, 201);
-            this.cbWriteConfig.Name = "cbWriteConfig";
-            this.cbWriteConfig.Size = new System.Drawing.Size(171, 19);
-            this.cbWriteConfig.TabIndex = 11;
-            this.cbWriteConfig.Text = "Write Region to Config File:";
-            this.cbWriteConfig.UseVisualStyleBackColor = true;
+            cbWriteConfig.AutoSize = true;
+            cbWriteConfig.Location = new System.Drawing.Point(14, 302);
+            cbWriteConfig.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbWriteConfig.Name = "cbWriteConfig";
+            cbWriteConfig.Size = new System.Drawing.Size(214, 24);
+            cbWriteConfig.TabIndex = 11;
+            cbWriteConfig.Text = "Write Region to Config File:";
+            cbWriteConfig.UseVisualStyleBackColor = true;
             // 
             // tbCfgFileName
             // 
-            this.tbCfgFileName.Location = new System.Drawing.Point(31, 226);
-            this.tbCfgFileName.Name = "tbCfgFileName";
-            this.tbCfgFileName.ReadOnly = true;
-            this.tbCfgFileName.Size = new System.Drawing.Size(291, 23);
-            this.tbCfgFileName.TabIndex = 12;
+            tbCfgFileName.Location = new System.Drawing.Point(35, 335);
+            tbCfgFileName.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            tbCfgFileName.Name = "tbCfgFileName";
+            tbCfgFileName.ReadOnly = true;
+            tbCfgFileName.Size = new System.Drawing.Size(332, 27);
+            tbCfgFileName.TabIndex = 12;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 261);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Cancel";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.CancelButton_Click);
+            button1.Location = new System.Drawing.Point(14, 382);
+            button1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(86, 31);
+            button1.TabIndex = 13;
+            button1.Text = "Cancel";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += CancelButton_Click;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(247, 261);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 14;
-            this.button2.Text = "Save";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.SaveButton_Click);
+            button2.Location = new System.Drawing.Point(282, 382);
+            button2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            button2.Name = "button2";
+            button2.Size = new System.Drawing.Size(86, 31);
+            button2.TabIndex = 14;
+            button2.Text = "Save";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += SaveButton_Click;
             // 
             // unsetEnvVariablesButton
             // 
-            this.unsetEnvVariablesButton.Location = new System.Drawing.Point(266, 50);
-            this.unsetEnvVariablesButton.Name = "unsetEnvVariablesButton";
-            this.unsetEnvVariablesButton.Size = new System.Drawing.Size(56, 23);
-            this.unsetEnvVariablesButton.TabIndex = 15;
-            this.unsetEnvVariablesButton.Text = "Unset";
-            this.unsetEnvVariablesButton.UseVisualStyleBackColor = true;
-            this.unsetEnvVariablesButton.Click += new System.EventHandler(this.unsetEnvVariablesButton_Click);
+            unsetEnvVariablesButton.Location = new System.Drawing.Point(304, 67);
+            unsetEnvVariablesButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            unsetEnvVariablesButton.Name = "unsetEnvVariablesButton";
+            unsetEnvVariablesButton.Size = new System.Drawing.Size(64, 31);
+            unsetEnvVariablesButton.TabIndex = 15;
+            unsetEnvVariablesButton.Text = "Unset";
+            unsetEnvVariablesButton.UseVisualStyleBackColor = true;
+            unsetEnvVariablesButton.Click += unsetEnvVariablesButton_Click;
+            // 
+            // cbDefaultOnly
+            // 
+            cbDefaultOnly.AutoSize = true;
+            cbDefaultOnly.Location = new System.Drawing.Point(35, 221);
+            cbDefaultOnly.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            cbDefaultOnly.Name = "cbDefaultOnly";
+            cbDefaultOnly.Size = new System.Drawing.Size(184, 24);
+            cbDefaultOnly.TabIndex = 16;
+            cbDefaultOnly.Text = "use default profile only";
+            cbDefaultOnly.UseVisualStyleBackColor = true;
+            cbDefaultOnly.CheckedChanged += CbDefaultOnly_CheckedChanged;
             // 
             // AwsCredentialsConfigForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(334, 296);
-            this.Controls.Add(this.unsetEnvVariablesButton);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.tbCfgFileName);
-            this.Controls.Add(this.cbWriteConfig);
-            this.Controls.Add(this.cbAddRegion);
-            this.Controls.Add(this.tbRegion);
-            this.Controls.Add(this.cbCloneDefault);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.tbFileName);
-            this.Controls.Add(this.cbToFile);
-            this.Controls.Add(this.cbToEnv);
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(350, 335);
-            this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(350, 335);
-            this.Name = "AwsCredentialsConfigForm";
-            this.Text = "AWS Credentials Options";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AwsCredentialsConfigForm_FormClosing);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(379, 453);
+            Controls.Add(cbDefaultOnly);
+            Controls.Add(unsetEnvVariablesButton);
+            Controls.Add(button2);
+            Controls.Add(button1);
+            Controls.Add(tbCfgFileName);
+            Controls.Add(cbWriteConfig);
+            Controls.Add(cbAddRegion);
+            Controls.Add(tbRegion);
+            Controls.Add(cbCloneDefault);
+            Controls.Add(label1);
+            Controls.Add(tbFileName);
+            Controls.Add(cbToFile);
+            Controls.Add(cbToEnv);
+            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            MaximizeBox = false;
+            MaximumSize = new System.Drawing.Size(397, 500);
+            MinimizeBox = false;
+            MinimumSize = new System.Drawing.Size(397, 500);
+            Name = "AwsCredentialsConfigForm";
+            Text = "AWS Credentials Options";
+            FormClosing += AwsCredentialsConfigForm_FormClosing;
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -204,5 +230,6 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button unsetEnvVariablesButton;
+        private System.Windows.Forms.CheckBox cbDefaultOnly;
     }
 }

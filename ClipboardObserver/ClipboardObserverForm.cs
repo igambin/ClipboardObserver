@@ -137,7 +137,7 @@ namespace ClipboardObserver
 
         private void ClipboardEntryProcessed(object source, ClipboardEntryProcessedEventArgs args)
         {
-            var now  = $"{DateTime.Now:u}";
+            var now  = $"{DateTime.Now:yy/MM/dd HH:mm:ss}";
             textBox1.AppendText($"{now} - {args.Handler.GetType().Name}: {args.Message}{Environment.NewLine}");
             ClipboardObserverNotifier.BalloonTipTitle = args.Handler.GetType().Name;
             ClipboardObserverNotifier.BalloonTipIcon = _severityToIconMap[args.Severity];

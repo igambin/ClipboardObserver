@@ -16,7 +16,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
         private IServiceProvider Services { get; }
         private SharpClipboard Clipboard { get; }
         private AwsCredentialsFile AwsCredentialsFile { get; }
-        private AwsCredentialsConfigOptions Options { get; }
+        private AwsCredentialsConfigOptions Options { get; set; }
         private string _lastClipboardContent = string.Empty;
 
         public AwsCredentialsHandler(
@@ -29,6 +29,7 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
             Services = services;
             AwsCredentialsFile = awsCredentialsFile;
             Options = options.CurrentValue;
+            options.OnChange((configOptions => Options = configOptions));
             clipboard.ClipboardChanged += async (o, args) =>
             {
                 await ClipboardChanged();
@@ -94,15 +95,18 @@ namespace ClipboardObserver.Plugins.AwsCredentialsHandler
 
                 await AwsCredentialsFile.SaveFile();
 
-                var msg = $"Credentials file '{AwsCredentialsFile.CredentialsFileName}' updated:";
+                List<string> profilesUpdated = [];
+                var msg = $"Credentials file '{AwsCredentialsFile.CredentialsFileName}' updated: ";
                 if (!Options.WriteDefaultProfileOnly)
                 {
-                    msg += $" [{copiedCredentials.UserName}]";
+                    profilesUpdated.Add($"[{copiedCredentials.UserName}]");
                 }
                 if (Options.CloneCredentialsToDefault)
                 {
-                    msg += $" and [default]";
+                    profilesUpdated.Add("[default]");
                 }
+
+                msg += string.Join(", ", profilesUpdated);
 
                 OnClipboardProcessed(msg);
 
