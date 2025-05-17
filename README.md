@@ -1,10 +1,10 @@
 # Clipboard Observer
-Have you ever felt stupid for copying text blocks and inserting them into a specific file again and again. I have joined yet another project using AWS and in doing so I have gotten myself yet another project where I have to regularly update my ~/.aws/credentials file everytime the token lifetime has expired.
+Have you ever felt stupid for copying text blocks and inserting them into a specific file again and again. I have joined yet another project using AWS and in doing so I have gotten myself yet another project where I have to regularly update my ~/.aws/credentials file everytime I switch the AWS account or when the token lifetime has expired.
 
-Basically that is not a bad thing and I think it is a good addition to security. But I really think copying the keys every ~2 hours is tedious.
+Basically I fully agree, from a security point of view it does make sense. But in the end I really think having to copy the keys every ~1-2 hours is simply annoying.
 
 ## So what was I to do about this?
-Based on that I thought about creating a small tool, that allows me to recognize when those credentials have been added to Windows' clipboard buffer and then immediately have the tool overwrite the aws credentials file with the new keys.
+So I came up with this little tool, which will observe Windows' clipboard buffer and whenever new AWS Credentials have been copied, will recognize them by matching a regex pattern and then immediately write them to the file %USERDIR%/.aws/credentials.
 
 ### Development Steps
 
